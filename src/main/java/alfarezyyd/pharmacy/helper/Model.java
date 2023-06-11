@@ -1,5 +1,7 @@
 package alfarezyyd.pharmacy.helper;
 
+import alfarezyyd.pharmacy.exception.ClientError;
+import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.model.entity.Customer;
 import alfarezyyd.pharmacy.model.web.response.AddressResponse;
@@ -9,9 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class Model {
   public static CustomerResponse convertToCustomerResponse(Customer customer) {
@@ -37,9 +37,9 @@ public class Model {
     addressResponse.setPostalCode(address.getPostalCode());
     addressResponse.setDefault(address.getDefault());
     addressResponse.setDescription(address.getDescription());
-    addressResponse.setCreatedAt(Optional.of(address.getCreatedAt().toString()).orElse(null));
+    addressResponse.setCreatedAt(address.getCreatedAt().toString());
     addressResponse.setUpdatedAt(Optional.of(address.getUpdatedAt().toString()).orElse(null));
-    addressResponse.setDeletedAt(Optional.of(address.getCreatedAt().toString()).orElse(null));
+    addressResponse.setDeletedAt(Optional.of(address.getDeletedAt().toString()).orElse(null));
     return addressResponse;
   }
 
@@ -49,10 +49,32 @@ public class Model {
       webResponse.put("code", HttpStatus.OK);
       webResponse.put("message", "Success!");
       webResponse.put("data", responseData);
+      webResponse.put("errors", null);
       resp.setHeader("Content-Type", "application/json");
       resp.getWriter().println(JSONUtil.getObjectMapper().writeValueAsString(webResponse));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
+
+  public static void writeToResponseBodyError(HttpServletResponse resp) {
+    Map<String, LinkedList<Object>> errorResponse = new HashMap<>();
+    errorResponse.put("client_errors", ClientError.getAllClientError());
+    errorResponse.put("server_errors", ServerError.getAllServerError());
+    try {
+      Map<String, Object> webResponse = new HashMap<>();
+      webResponse.put("code", HttpStatus.BAD_REQUEST);
+      webResponse.put("message", "Failed! Error has Occured");
+      webResponse.put("data", null);
+      webResponse.put("errors", errorResponse);
+      resp.setHeader("Content-Type", "application/json");
+      resp.getWriter().println(JSONUtil.getObjectMapper().writeValueAsString(webResponse));
+      ClientError.getValidationErrors().clear();
+      ClientError.getActionErrors().clear();
+      ServerError.getDatabaseErrors().clear();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 }

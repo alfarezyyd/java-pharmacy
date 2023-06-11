@@ -31,9 +31,10 @@ public class AddressUsecaseImpl implements AddressUsecase {
   }
 
   @Override
-  public Long createAddress(AddressCreateRequest addressCreateRequest) {
+  public Long createAddress(AddressCreateRequest addressCreateRequest, Long id) {
     try {
       Address address = new Address();
+      address.setCustomerId(id);
       address.setStreet(addressCreateRequest.getStreet());
       address.setCity(addressCreateRequest.getCity());
       address.setState(addressCreateRequest.getState());
@@ -52,34 +53,17 @@ public class AddressUsecaseImpl implements AddressUsecase {
   @Override
   public void updateAddress(AddressUpdateRequest addressUpdateRequest) {
     try {
-      Address address = new Address();
-      address.setId(addressUpdateRequest.getId());
-      address.setStreet(addressUpdateRequest.getStreet());
-      address.setCity(addressUpdateRequest.getCity());
-      address.setState(addressUpdateRequest.getState());
-      address.setCountry(addressUpdateRequest.getCountry());
-      address.setPostalCode(addressUpdateRequest.getPostalCode());
-      address.setDefault(addressUpdateRequest.getDefault());
-      address.setDescription(addressUpdateRequest.getDescription());
-      addressRepository.updateAddress(hikariDataSource.getConnection(), address);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public void softDeleteAddress(Long addressId) {
-    try {
-      addressRepository.softDeleteAddress(hikariDataSource.getConnection(), addressId);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public void permanentlyDeleteAddress(Long addressId) {
-    try {
-      addressRepository.permanentlyDeleteAddress(hikariDataSource.getConnection(), addressId);
+      Address address = addressRepository.getAddressById(hikariDataSource.getConnection(), addressUpdateRequest.getId());
+      if (address != null) {
+        address.setStreet(addressUpdateRequest.getStreet());
+        address.setCity(addressUpdateRequest.getCity());
+        address.setState(addressUpdateRequest.getState());
+        address.setCountry(addressUpdateRequest.getCountry());
+        address.setPostalCode(addressUpdateRequest.getPostalCode());
+        address.setDefault(addressUpdateRequest.getDefault());
+        address.setDescription(addressUpdateRequest.getDescription());
+        addressRepository.updateAddress(hikariDataSource.getConnection(), address);
+      }
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

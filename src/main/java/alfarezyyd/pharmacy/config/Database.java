@@ -1,13 +1,9 @@
-package alfarezyyd.pharmacy.util;
+package alfarezyyd.pharmacy.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.SQLException;
-
-public class DatabaseUtil {
+public class Database {
 
   private static HikariDataSource hikariDataSource = new HikariDataSource(getHikariConfig());
 

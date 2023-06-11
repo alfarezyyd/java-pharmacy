@@ -1,13 +1,34 @@
 package alfarezyyd.pharmacy.model.web.address;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class AddressUpdateRequest {
+  @NotBlank
   private Long id;
+  @NotBlank
+  @Size(max = 255)
   private String street;
+  @NotBlank
+  @Size(max = 255)
   private String city;
+  @NotBlank
+  @Size(max = 255)
   private String state;
+  @NotBlank
+  @Size(max = 255)
   private String country;
+  @JsonProperty("postal_code")
+  @NotBlank
+  @Size(max = 255)
   private String postalCode;
+
+  @JsonProperty("is_default")
+  @NotNull
   private Boolean isDefault;
+  @NotBlank
   private String description;
 
   public Long getId() {

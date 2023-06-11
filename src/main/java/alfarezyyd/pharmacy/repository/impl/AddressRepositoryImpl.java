@@ -4,6 +4,8 @@ import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.repository.AddressRepository;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class AddressRepositoryImpl implements AddressRepository {
   @Override
@@ -36,27 +38,51 @@ public class AddressRepositoryImpl implements AddressRepository {
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public LinkedList<Address> getAllAddressByCustomerId(Connection connection, Long customerId) {
+    String sqlSyntax = """
+        SELECT * FROM addresses WHERE customer_id=?
+        """;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);) {
+      preparedStatement.setLong(1, customerId);
+      ResultSet resultSet = preparedStatement.executeQuery();
+      LinkedList<Address> allAddress = new LinkedList<>();
+      while (resultSet.next()) {
+        Address address = new Address();
+        address.setId(resultSet.getLong("id"));
+        address.setStreet(resultSet.getString("street"));
+        address.setCity(resultSet.getString("city"));
+        address.setState(resultSet.getString("state"));
+        allAddress.add(address);
+      }
+      return allAddress;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
 
   }
 
   @Override
   public Long createAddress(Connection connection, Address address) {
     String sqlSyntax = """
-        INSERT INTO addresses(street, city, state, country, postal_code, is_default, description) VALUES (?,?,?,?,?,?,?)
+        INSERT INTO addresses(customer_id, street, city, state, country, postal_code, is_default, description) VALUES (?,?,?,?,?,?,?,?)
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
-      preparedStatement.setString(1, address.getStreet());
-      preparedStatement.setString(2, address.getCity());
-      preparedStatement.setString(3, address.getState());
-      preparedStatement.setString(4, address.getCountry());
-      preparedStatement.setString(5, address.getPostalCode());
-      preparedStatement.setBoolean(6, address.getDefault());
-      preparedStatement.setString(7, address.getDescription());
+      preparedStatement.setLong(1, address.getCustomerId());
+      preparedStatement.setString(2, address.getStreet());
+      preparedStatement.setString(3, address.getCity());
+      preparedStatement.setString(4, address.getState());
+      preparedStatement.setString(5, address.getCountry());
+      preparedStatement.setString(6, address.getPostalCode());
+      preparedStatement.setBoolean(7, address.getDefault());
+      preparedStatement.setString(8, address.getDescription());
       preparedStatement.executeUpdate();
       ResultSet resultSet = preparedStatement.getGeneratedKeys();
       Long generatedKeys = 0L;
       if (resultSet.next()) {
-         generatedKeys = resultSet.getLong(1);
+        generatedKeys = resultSet.getLong(1);
       }
       resultSet.close();
       connection.close();
@@ -88,27 +114,34 @@ public class AddressRepositoryImpl implements AddressRepository {
   }
 
   @Override
-  public void softDeleteAddress(Connection connection, Long addressId) {
+  public void softDeleteCustomerAddress(Connection connection, ArrayList<Long> arrayOfAddressId, Long customerId) {
     String sqlSyntax = """
-        UPDATE addresses SET deleted_at=? WHERE id=?
+        UPDATE addresses SET deleted_at=? WHERE id=? AND customer_id=?
         """;
     try {
       PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
-      preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-      preparedStatement.setLong(2, addressId);
+      for (Long addressId : arrayOfAddressId) {
+        preparedStatement.clearParameters();
+        preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+        preparedStatement.setLong(2, addressId);
+        preparedStatement.setLong(3, customerId);
+      }
+      preparedStatement.executeBatch();
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void permanentlyDeleteAddress(Connection connection, Long addressId) {
+  public void permanentlyDeleteCustomerAddress(Connection connection, Long addressId, Long customerId) {
     String sqlSyntax = """
-        DELETE FROM addresses WHERE id=?
+        DELETE FROM addresses WHERE id=? AND customer_id=?
         """;
     try {
       PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
       preparedStatement.setLong(1, addressId);
+      preparedStatement.setLong(2, customerId);
+      preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

@@ -1,19 +1,18 @@
 package alfarezyyd.pharmacy.model.entity;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Customer {
   private Long id;
-  private Long addressId;
   private String fullName;
   private LocalDate dateOfBirth;
   private Gender gender;
   private String phone;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  private LocalDateTime deletedAt;
+  private Timestamp createdAt;
+  private Timestamp updatedAt;
+  private Timestamp deletedAt;
 
   public Long getId() {
     return id;
@@ -21,14 +20,6 @@ public class Customer {
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public Long getAddressId() {
-    return addressId;
-  }
-
-  public void setAddressId(Long addressId) {
-    this.addressId = addressId;
   }
 
   public String getFullName() {
@@ -63,27 +54,27 @@ public class Customer {
     this.phone = phone;
   }
 
-  public LocalDateTime getCreatedAt() {
+  public Timestamp getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
+  public void setCreatedAt(Timestamp createdAt) {
     this.createdAt = createdAt;
   }
 
-  public LocalDateTime getUpdatedAt() {
+  public Timestamp getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
+  public void setUpdatedAt(Timestamp updatedAt) {
     this.updatedAt = updatedAt;
   }
 
-  public LocalDateTime getDeletedAt() {
+  public Timestamp getDeletedAt() {
     return deletedAt;
   }
 
-  public void setDeletedAt(LocalDateTime deletedAt) {
+  public void setDeletedAt(Timestamp deletedAt) {
     this.deletedAt = deletedAt;
   }
 
@@ -95,7 +86,6 @@ public class Customer {
     Customer customer = (Customer) o;
 
     if (!id.equals(customer.id)) return false;
-    if (!addressId.equals(customer.addressId)) return false;
     if (!fullName.equals(customer.fullName)) return false;
     if (!dateOfBirth.equals(customer.dateOfBirth)) return false;
     if (gender != customer.gender) return false;
@@ -108,7 +98,6 @@ public class Customer {
   @Override
   public int hashCode() {
     int result = id.hashCode();
-    result = 31 * result + addressId.hashCode();
     result = 31 * result + fullName.hashCode();
     result = 31 * result + dateOfBirth.hashCode();
     result = 31 * result + gender.hashCode();
@@ -123,7 +112,6 @@ public class Customer {
   public String toString() {
     return "Customer{" +
         "id=" + id +
-        ", addressId=" + addressId +
         ", fullName='" + fullName + '\'' +
         ", dateOfBirth=" + dateOfBirth +
         ", gender=" + gender +

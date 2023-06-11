@@ -3,15 +3,20 @@ package alfarezyyd.pharmacy.repository;
 import alfarezyyd.pharmacy.model.entity.Customer;
 
 import java.sql.Connection;
-import java.sql.Statement;
 import java.util.LinkedList;
 
 public interface CustomerRepository {
+  Customer getCustomerById(Connection connection, Long customerId);
+
   LinkedList<Customer> getAllCustomer(Connection connection);
+  LinkedList<Customer> getAllDeletedCustomer(Connection connection);
 
-  void createCustomer(Connection connection, Customer customer);
 
-  void updateCustomer(Customer customer);
+  Long createCustomer(Connection connection, Customer customer);
 
-  void deleteCustomer(Long customerId);
+  void updateCustomer(Connection connection, Customer customer);
+
+  void softDeleteCustomer(Connection connection,Customer customer);
+
+  void permanentlyDeleteCustomer(Connection connection, Long customerId);
 }

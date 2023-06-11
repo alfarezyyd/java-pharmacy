@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class Address {
   private Long id;
+  private Long customerId;
   private String street;
   private String city;
   private String state;
@@ -22,6 +23,14 @@ public class Address {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public Long getCustomerId() {
+    return customerId;
+  }
+
+  public void setCustomerId(Long customerId) {
+    this.customerId = customerId;
   }
 
   public String getStreet() {

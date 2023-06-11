@@ -1,6 +1,6 @@
 package alfarezyyd.pharmacy.model.entity;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class User {
@@ -9,10 +9,10 @@ public class User {
   private String username;
   private String email;
   private String password;
-  private LocalDateTime lastLogin;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  private LocalDateTime deletedAt;
+  private Timestamp lastLogin;
+  private Timestamp createdAt;
+  private Timestamp updatedAt;
+  private Timestamp deletedAt;
 
   public Long getId() {
     return id;
@@ -54,35 +54,35 @@ public class User {
     this.password = password;
   }
 
-  public LocalDateTime getLastLogin() {
+  public Timestamp getLastLogin() {
     return lastLogin;
   }
 
-  public void setLastLogin(LocalDateTime lastLogin) {
+  public void setLastLogin(Timestamp lastLogin) {
     this.lastLogin = lastLogin;
   }
 
-  public LocalDateTime getCreatedAt() {
+  public Timestamp getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(LocalDateTime createdAt) {
+  public void setCreatedAt(Timestamp createdAt) {
     this.createdAt = createdAt;
   }
 
-  public LocalDateTime getUpdatedAt() {
+  public Timestamp getUpdatedAt() {
     return updatedAt;
   }
 
-  public void setUpdatedAt(LocalDateTime updatedAt) {
+  public void setUpdatedAt(Timestamp updatedAt) {
     this.updatedAt = updatedAt;
   }
 
-  public LocalDateTime getDeletedAt() {
+  public Timestamp getDeletedAt() {
     return deletedAt;
   }
 
-  public void setDeletedAt(LocalDateTime deletedAt) {
+  public void setDeletedAt(Timestamp deletedAt) {
     this.deletedAt = deletedAt;
   }
 
