@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.repository.impl;
 
+import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.repository.AddressRepository;
 
@@ -9,7 +10,7 @@ import java.util.LinkedList;
 
 public class AddressRepositoryImpl implements AddressRepository {
   @Override
-  public Address getAddressById(Connection connection, Long addressId) {
+  public Address getAddressById(Connection connection, Long addressId) throws DatabaseError {
     String sqlSyntax = """
         SELECT * FROM addresses WHERE id = ?
         """;
@@ -29,23 +30,20 @@ public class AddressRepositoryImpl implements AddressRepository {
         address.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
         address.setUpdatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime());
         address.setDeletedAt(resultSet.getTimestamp("deleted_at").toLocalDateTime());
-        connection.close();
-        return address;
-      } else {
-        connection.close();
-        return address;
       }
+      connection.close();
+      return address;
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public LinkedList<Address> getAllAddressByCustomerId(Connection connection, Long customerId) {
+  public LinkedList<Address> getAllAddressByCustomerId(Connection connection, Long customerId) throws DatabaseError {
     String sqlSyntax = """
         SELECT * FROM addresses WHERE customer_id=?
         """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, customerId);
       ResultSet resultSet = preparedStatement.executeQuery();
       LinkedList<Address> allAddress = new LinkedList<>();
@@ -59,13 +57,12 @@ public class AddressRepositoryImpl implements AddressRepository {
       }
       return allAddress;
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
-
   }
 
   @Override
-  public Long createAddress(Connection connection, Address address) {
+  public void createAddress(Connection connection, Address address) throws DatabaseError {
     String sqlSyntax = """
         INSERT INTO addresses(customer_id, street, city, state, country, postal_code, is_default, description) VALUES (?,?,?,?,?,?,?,?)
         """;
@@ -79,25 +76,18 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setBoolean(7, address.getDefault());
       preparedStatement.setString(8, address.getDescription());
       preparedStatement.executeUpdate();
-      ResultSet resultSet = preparedStatement.getGeneratedKeys();
-      Long generatedKeys = 0L;
-      if (resultSet.next()) {
-        generatedKeys = resultSet.getLong(1);
-      }
-      resultSet.close();
       connection.close();
-      return generatedKeys;
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public void updateAddress(Connection connection, Address address) {
+  public void updateAddress(Connection connection, Address address) throws DatabaseError {
     String sqlSyntax = """
         UPDATE addresses SET street=?, city=?, state=?, country=?, postal_code=?, is_default=?, description=?, updated_at=? WHERE id=?
         """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setString(1, address.getStreet());
       preparedStatement.setString(2, address.getCity());
       preparedStatement.setString(3, address.getState());
@@ -109,12 +99,12 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setLong(9, address.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public void softDeleteCustomerAddress(Connection connection, ArrayList<Long> arrayOfAddressId, Long customerId) {
+  public void softDeleteCustomerAddress(Connection connection, ArrayList<Long> arrayOfAddressId, Long customerId) throws DatabaseError {
     String sqlSyntax = """
         UPDATE addresses SET deleted_at=? WHERE id=? AND customer_id=?
         """;
@@ -128,12 +118,12 @@ public class AddressRepositoryImpl implements AddressRepository {
       }
       preparedStatement.executeBatch();
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public void permanentlyDeleteCustomerAddress(Connection connection, Long addressId, Long customerId) {
+  public void permanentlyDeleteCustomerAddress(Connection connection, Long addressId, Long customerId) throws DatabaseError {
     String sqlSyntax = """
         DELETE FROM addresses WHERE id=? AND customer_id=?
         """;
@@ -143,7 +133,7 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setLong(2, customerId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 }

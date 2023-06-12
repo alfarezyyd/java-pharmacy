@@ -5,8 +5,8 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
 public class ValidationUtil {
-  private static ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-  private static Validator validator = validatorFactory.getValidator();
+  private static final ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+  private static final Validator validator = validatorFactory.getValidator();
 
   public static ValidatorFactory getValidatorFactory() {
     return validatorFactory;

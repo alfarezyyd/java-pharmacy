@@ -4,8 +4,10 @@ import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.model.entity.Customer;
+import alfarezyyd.pharmacy.model.entity.Medicine;
 import alfarezyyd.pharmacy.model.web.response.AddressResponse;
 import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
+import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,20 @@ public class Model {
     return addressResponse;
   }
 
+  public static MedicineResponse convertToMedicineResponse(Medicine medicine) {
+    MedicineResponse medicineResponse = new MedicineResponse();
+    medicineResponse.setId(medicine.getId());
+    medicineResponse.setName(medicine.getName());
+    medicineResponse.setDescription(medicine.getDescription());
+    medicineResponse.setBrand(medicine.getBrand());
+    medicineResponse.setPrice(medicine.getPrice());
+    medicineResponse.setStock(medicine.getStock());
+    medicineResponse.setCreatedAt(medicine.getCreatedAt().toString());
+    medicineResponse.setUpdatedAt(Optional.of(medicine.getUpdatedAt().toString()).orElse(null));
+    medicineResponse.setDeletedAt(Optional.of(medicine.getUpdatedAt().toString()).orElse(null));
+    return medicineResponse;
+  }
+
   public static void writeToResponseBodySuccess(HttpServletResponse resp, Object responseData) {
     try {
       Map<String, Object> webResponse = new HashMap<>();
@@ -57,24 +73,20 @@ public class Model {
     }
   }
 
-  public static void writeToResponseBodyError(HttpServletResponse resp) {
-    Map<String, LinkedList<Object>> errorResponse = new HashMap<>();
-    errorResponse.put("client_errors", ClientError.getAllClientError());
-    errorResponse.put("server_errors", ServerError.getAllServerError());
+  public static void writeToResponseBodyError(ServerError serverError, ClientError clientError, HttpServletResponse resp) {
+    Map<String, Map<String, LinkedList<?>>> errorsResponse = new HashMap<>();
+    errorsResponse.put("client_errors", clientError.getClientErrors());
+    errorsResponse.put("action_errors", serverError.getServerErrors());
     try {
       Map<String, Object> webResponse = new HashMap<>();
       webResponse.put("code", HttpStatus.BAD_REQUEST);
       webResponse.put("message", "Failed! Error has Occured");
       webResponse.put("data", null);
-      webResponse.put("errors", errorResponse);
+      webResponse.put("errors", errorsResponse);
       resp.setHeader("Content-Type", "application/json");
       resp.getWriter().println(JSONUtil.getObjectMapper().writeValueAsString(webResponse));
-      ClientError.getValidationErrors().clear();
-      ClientError.getActionErrors().clear();
-      ServerError.getDatabaseErrors().clear();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
-
 }

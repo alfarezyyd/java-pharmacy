@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.repository.impl;
 
-import alfarezyyd.pharmacy.exception.ClientError;
-import alfarezyyd.pharmacy.exception.ServerError;
+import alfarezyyd.pharmacy.exception.ActionError;
+import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Customer;
 import alfarezyyd.pharmacy.model.entity.Gender;
 import alfarezyyd.pharmacy.repository.CustomerRepository;
@@ -11,15 +11,16 @@ import java.util.LinkedList;
 
 public class CustomerRepositoryImpl implements CustomerRepository {
   @Override
-  public Customer getCustomerById(Connection connection, Long customerId) {
+  public Customer getCustomerById(Connection connection, Long customerId) throws DatabaseError, ActionError {
     String sqlSyntax = """
         SELECT * FROM customers WHERE id = ?
         """;
-    Customer customer = new Customer();
+    Customer customer;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, customerId);
       ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {
+        customer = new Customer();
         customer.setId(resultSet.getLong("id"));
         customer.setFullName(resultSet.getString("full_name"));
         customer.setDateOfBirth(resultSet.getDate("date_of_birth").toLocalDate());
@@ -29,18 +30,18 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         customer.setUpdatedAt(resultSet.getTimestamp("updated_at"));
         customer.setDeletedAt(resultSet.getTimestamp("deleted_at"));
       } else {
-        ClientError.addActionError("find customer", "customer not found");
+        throw new ActionError("find customer", "customer not found");
       }
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
     return customer;
   }
 
   @Override
-  public LinkedList<Customer> getAllCustomer(Connection connection) {
+  public LinkedList<Customer> getAllCustomer(Connection connection) throws DatabaseError {
     String sqlSyntax = """
-         SELECT * FROM customers WHERE deleted_at = NULL;
+         SELECT * FROM customers WHERE deleted_at IS NULL;
         """;
     LinkedList<Customer> allCustomer = new LinkedList<>();
     try (Statement statement = connection.createStatement();
@@ -53,16 +54,16 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         customer.setGender(Gender.valueOf(resultSet.getString("gender")));
         allCustomer.add(customer);
       }
-      connection.close();
+
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
     return allCustomer;
 
   }
 
   @Override
-  public LinkedList<Customer> getAllDeletedCustomer(Connection connection) {
+  public LinkedList<Customer> getAllDeletedCustomer(Connection connection) throws DatabaseError {
     String sqlSyntax = """
         SELECT * FROM customers WHERE deleted_at != NULL;
         """;
@@ -78,17 +79,17 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         allDeletedCustomer.add(customer);
       }
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
     return allDeletedCustomer;
 
   }
 
   @Override
-  public Long createCustomer(Connection connection, Customer customer) {
+  public Long createCustomer(Connection connection, Customer customer) throws DatabaseError, ActionError {
     String sqlSyntax = "INSERT INTO customers(full_name, date_of_birth, gender, phone) VALUES (?,?,?,?)";
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
-      long customerId = 0L;
+      long customerId;
       preparedStatement.setString(1, customer.getFullName());
       preparedStatement.setDate(2, Date.valueOf(customer.getDateOfBirth()));
       preparedStatement.setString(3, customer.getGender().toString());
@@ -98,18 +99,16 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       if (resultSet.next()) {
         customerId = resultSet.getLong(1);
       } else {
-        ClientError.addActionError("create customer", "create customer failed");
+        throw new ActionError("create customer", "create customer failed");
       }
-      connection.close();
       return customerId;
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
-      return 0L;
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public void updateCustomer(Connection connection, Customer customer) {
+  public void updateCustomer(Connection connection, Customer customer) throws DatabaseError {
     String sqlSyntax = """
         UPDATE customers SET full_name=?, date_of_birth=?, gender=?, phone=? WHERE id=?
         """;
@@ -121,12 +120,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       preparedStatement.setLong(5, customer.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public void softDeleteCustomer(Connection connection, Customer customer) {
+  public void softDeleteCustomer(Connection connection, Customer customer) throws DatabaseError {
     String sqlSyntax = """
         UPDATE customers SET deleted_at=? WHERE id=?
         """;
@@ -135,12 +134,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       preparedStatement.setLong(2, customer.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
   @Override
-  public void permanentlyDeleteCustomer(Connection connection, Long customerId) {
+  public void permanentlyDeleteCustomer(Connection connection, Long customerId) throws DatabaseError {
     String sqlSyntax = """
         DELETE FROM customers WHERE id=?
         """;
@@ -148,7 +147,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       preparedStatement.setLong(1, customerId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      ServerError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 }

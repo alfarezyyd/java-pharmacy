@@ -5,9 +5,9 @@ import alfarezyyd.pharmacy.exception.ServerError;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class ExceptionCheck {
-  public static Boolean exceptionCheck(HttpServletResponse resp) {
-    if (ClientError.hasErrors() || ServerError.hasErrors()){
-      Model.writeToResponseBodyError(resp);
+  public static Boolean exceptionCheck(ServerError serverError, ClientError clientError, HttpServletResponse resp) {
+    if (serverError.hasErrors() || clientError.hasErrors()) {
+      Model.writeToResponseBodyError(serverError, clientError, resp);
       return true;
     }
     return false;

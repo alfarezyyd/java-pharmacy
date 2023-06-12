@@ -1,5 +1,7 @@
 package alfarezyyd.pharmacy.usecase.impl;
 
+import alfarezyyd.pharmacy.exception.ClientError;
+import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.model.web.address.AddressCreateRequest;
@@ -12,8 +14,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.sql.SQLException;
 
 public class AddressUsecaseImpl implements AddressUsecase {
-  private AddressRepository addressRepository;
-  private HikariDataSource hikariDataSource;
+  private final AddressRepository addressRepository;
+  private final HikariDataSource hikariDataSource;
 
   public AddressUsecaseImpl(AddressRepository addressRepository, HikariDataSource hikariDataSource) {
     this.addressRepository = addressRepository;
@@ -21,17 +23,18 @@ public class AddressUsecaseImpl implements AddressUsecase {
   }
 
   @Override
-  public AddressResponse findAddressById(Long addressId) {
+  public AddressResponse findAddressById(ServerError serverError, Long addressId) {
     try {
       Address address = addressRepository.getAddressById(hikariDataSource.getConnection(), addressId);
       return Model.convertToAddressResponse(address);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      return new AddressResponse();
     }
   }
 
   @Override
-  public Long createAddress(AddressCreateRequest addressCreateRequest, Long id) {
+  public void createAddress(ServerError serverError, AddressCreateRequest addressCreateRequest, Long id) {
     try {
       Address address = new Address();
       address.setCustomerId(id);
@@ -42,16 +45,15 @@ public class AddressUsecaseImpl implements AddressUsecase {
       address.setPostalCode(addressCreateRequest.getPostalCode());
       address.setDefault(addressCreateRequest.getDefault());
       address.setDescription(addressCreateRequest.getDescription());
-      Long addressId = addressRepository.createAddress(hikariDataSource.getConnection(), address);
-      return addressId;
+      addressRepository.createAddress(hikariDataSource.getConnection(), address);
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 
 
   @Override
-  public void updateAddress(AddressUpdateRequest addressUpdateRequest) {
+  public void updateAddress(ServerError serverError, ClientError clientError, AddressUpdateRequest addressUpdateRequest) {
     try {
       Address address = addressRepository.getAddressById(hikariDataSource.getConnection(), addressUpdateRequest.getId());
       if (address != null) {
@@ -65,7 +67,7 @@ public class AddressUsecaseImpl implements AddressUsecase {
         addressRepository.updateAddress(hikariDataSource.getConnection(), address);
       }
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
     }
   }
 }

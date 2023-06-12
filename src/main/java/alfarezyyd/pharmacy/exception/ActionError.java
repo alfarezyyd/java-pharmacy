@@ -2,8 +2,8 @@ package alfarezyyd.pharmacy.exception;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ActionError {
-  private String action;
+public class ActionError extends Throwable {
+  private final String action;
   @JsonProperty("error_message")
 
   private String errorMessage;
@@ -13,20 +13,14 @@ public class ActionError {
     this.errorMessage = errorMessage;
   }
 
-  public String getFieldName() {
+  public String getAction() {
     return action;
   }
 
-  public void setFieldName(String action) {
-    this.action = action;
-  }
 
   public String getErrorMessage() {
     return errorMessage;
   }
 
-  public void setErrorMessage(String errorMessage) {
-    this.errorMessage = errorMessage;
-  }
 
 }

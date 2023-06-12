@@ -1,22 +1,25 @@
 package alfarezyyd.pharmacy.repository;
 
+import alfarezyyd.pharmacy.exception.ActionError;
+import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Customer;
 
 import java.sql.Connection;
 import java.util.LinkedList;
 
 public interface CustomerRepository {
-  Customer getCustomerById(Connection connection, Long customerId);
 
-  LinkedList<Customer> getAllCustomer(Connection connection);
-  LinkedList<Customer> getAllDeletedCustomer(Connection connection);
+  LinkedList<Customer> getAllCustomer(Connection connection) throws DatabaseError;
 
+  LinkedList<Customer> getAllDeletedCustomer(Connection connection) throws DatabaseError;
 
-  Long createCustomer(Connection connection, Customer customer);
+  Customer getCustomerById(Connection connection, Long customerId) throws DatabaseError, ActionError;
 
-  void updateCustomer(Connection connection, Customer customer);
+  Long createCustomer(Connection connection, Customer customer) throws DatabaseError, ActionError;
 
-  void softDeleteCustomer(Connection connection,Customer customer);
+  void updateCustomer(Connection connection, Customer customer) throws DatabaseError;
 
-  void permanentlyDeleteCustomer(Connection connection, Long customerId);
+  void softDeleteCustomer(Connection connection, Customer customer) throws DatabaseError;
+
+  void permanentlyDeleteCustomer(Connection connection, Long customerId) throws DatabaseError;
 }

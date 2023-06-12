@@ -1,29 +1,26 @@
 package alfarezyyd.pharmacy.exception;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class ServerError {
-  private static final LinkedList<DatabaseError> databaseErrors = new LinkedList<>();
+  private final LinkedList<DatabaseError> databaseErrors = new LinkedList<>();
 
-  public static void addDatabaseError(String errorReason, Integer errorCode) {
+  public void addDatabaseError(String errorReason, Integer errorCode) {
     databaseErrors.add(new DatabaseError(errorReason, errorCode));
   }
 
-  public static LinkedList<DatabaseError> getDatabaseErrors() {
+  public Boolean hasErrors() {
+    return databaseErrors.size() > 0;
+  }
+
+  public LinkedList<DatabaseError> getDatabaseErrors() {
     return databaseErrors;
   }
 
-  public static Boolean hasErrors() {
-    if (databaseErrors.size() > 0) {
-      return true;
-    }
-    return false;
-  }
-
-
-  public static LinkedList<Object> getAllServerError() {
-    LinkedList<Object> allClientError = new LinkedList<>();
-    allClientError.add(databaseErrors);
-    return allClientError;
+  public HashMap<String, LinkedList<?>> getServerErrors(){
+    HashMap<String, LinkedList<?>> serverErrorsResponse = new HashMap<>();
+    serverErrorsResponse.put("database_errors", getDatabaseErrors());
+    return serverErrorsResponse;
   }
 }

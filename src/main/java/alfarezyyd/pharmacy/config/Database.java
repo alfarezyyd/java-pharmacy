@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public class Database {
 
-  private static HikariDataSource hikariDataSource = new HikariDataSource(getHikariConfig());
+  private static final HikariDataSource hikariDataSource = new HikariDataSource(getHikariConfig());
 
   private static HikariConfig getHikariConfig() {
     HikariConfig hikariConfig = new HikariConfig();

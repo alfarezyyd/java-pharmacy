@@ -14,7 +14,9 @@ public class AppInitializationListener implements ServletContextListener {
   public void contextInitialized(ServletContextEvent sce) {
     DependencyContainer dependencyContainer = DependencyContainer.getInstance();
     CustomerUsecase customerUsecase = dependencyContainer.getCustomerUsecase();
+    CustomerUsecase medicineUsecase = dependencyContainer.getCustomerUsecase();
     sce.getServletContext().setAttribute("customerUsecase", customerUsecase);
+    sce.getServletContext().setAttribute("medicineUsecase", medicineUsecase);
   }
 
   @Override
