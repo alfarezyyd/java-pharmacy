@@ -6,5 +6,7 @@ public class DatabaseError extends SQLException {
 
   public DatabaseError(String errorReason, Integer errorCode) {
   }
+
+
 }
 

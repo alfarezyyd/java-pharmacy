@@ -1,15 +1,19 @@
 package alfarezyyd.pharmacy.model.web.medicine;
 
+import alfarezyyd.pharmacy.model.web.medicineInformation.MedicineInformationUpdateRequest;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class MedicineUpdateRequest {
+  @Valid
+  @JsonProperty("medicine_information")
+  private MedicineInformationUpdateRequest medicineInformation;
   @NotNull
   private Long id;
   @NotBlank
   private String name;
-  @NotBlank
-  private String description;
   @NotBlank
   private String brand;
   @NotNull
@@ -25,9 +29,6 @@ public class MedicineUpdateRequest {
     return name;
   }
 
-  public String getDescription() {
-    return description;
-  }
 
   public String getBrand() {
     return brand;
@@ -39,5 +40,9 @@ public class MedicineUpdateRequest {
 
   public Integer getStock() {
     return stock;
+  }
+
+  public MedicineInformationUpdateRequest getMedicineInformationCreateRequest() {
+    return medicineInformation;
   }
 }

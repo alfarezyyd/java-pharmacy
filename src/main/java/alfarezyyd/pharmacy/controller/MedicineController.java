@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.controller;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.ExceptionCheck;
-import alfarezyyd.pharmacy.helper.Model;
+import alfarezyyd.pharmacy.helper.ResponseWriter;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineCreateRequest;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
@@ -37,11 +37,11 @@ public class MedicineController extends HttpServlet {
       boolean isDeleted = Boolean.parseBoolean(deleted);
       LinkedList<MedicineResponse> allMedicine;
       if (isDeleted) {
-        allMedicine = medicineUsecase.getAllDeletedMedicine(serverError);
+        allMedicine = medicineUsecase.getAllDeletedMedicine(serverError, clientError);
       } else {
-        allMedicine = medicineUsecase.getAllMedicine(serverError);
+        allMedicine = medicineUsecase.getAllMedicine(serverError, clientError);
       }
-      Model.writeToResponseBodySuccess(resp, allMedicine);
+      ResponseWriter.writeToResponseBodySuccess(resp, allMedicine);
     } catch (NumberFormatException e) {
       clientError.addActionError("get all deleted data", "invalid! query param deleted must true");
     }
@@ -56,7 +56,7 @@ public class MedicineController extends HttpServlet {
     if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
       return;
     }
-    Model.writeToResponseBodySuccess(resp, null);
+    ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 
   @Override
@@ -68,21 +68,20 @@ public class MedicineController extends HttpServlet {
     if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
       return;
     }
-    Model.writeToResponseBodySuccess(resp, null);
+    ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String customerId = req.getParameter("delete");
+    String customerId = req.getParameter("medicine-id");
     try {
       Long customerIdLong = Long.parseLong(customerId);
-      System.out.println(customerIdLong);
       medicineUsecase.deleteMedicine(serverError, clientError, customerIdLong);
-      Model.writeToResponseBodySuccess(resp, null);
+      ResponseWriter.writeToResponseBodySuccess(resp, null);
     } catch (NumberFormatException e) {
-      throw new RuntimeException(e);
+      clientError.addActionError("delete medicine", "invalid! query param {medicine-id} must number");
     }
   }
 }

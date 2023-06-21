@@ -1,14 +1,12 @@
 package alfarezyyd.pharmacy.controller;
 
-import alfarezyyd.pharmacy.config.DependencyContainer;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.ExceptionCheck;
 import alfarezyyd.pharmacy.helper.ResponseWriter;
-import alfarezyyd.pharmacy.model.web.customer.CustomerCreateRequest;
-import alfarezyyd.pharmacy.model.web.customer.CustomerUpdateRequest;
-import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
-import alfarezyyd.pharmacy.usecase.CustomerUsecase;
+import alfarezyyd.pharmacy.model.web.order.OrderCreateRequest;
+import alfarezyyd.pharmacy.model.web.order.OrderUpdateRequest;
+import alfarezyyd.pharmacy.usecase.OrderUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
@@ -18,33 +16,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
-@WebServlet(urlPatterns = "/api/customers")
-public class CustomerController extends HttpServlet {
-  private CustomerUsecase customerUsecase = DependencyContainer.getInstance().getCustomerUsecase();
+@WebServlet(urlPatterns = "/api/orders")
+public class OrderController extends HttpServlet {
+  private OrderUsecase orderUsecase;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
-    customerUsecase = (CustomerUsecase) config.getServletContext().getAttribute("customerUsecase");
+    orderUsecase = (OrderUsecase) config.getServletContext().getAttribute("orderUsecase");
   }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    String deleted = req.getParameter("deleted");
+    ClientError clientError = new ClientError();
+    String customerId = req.getParameter("customer-id");
     try {
-      boolean isDeleted = Boolean.parseBoolean(deleted);
-      LinkedList<CustomerResponse> allCustomer;
-      if (isDeleted) {
-        allCustomer = customerUsecase.getAllDeletedCustomer(serverError);
-      } else {
-        allCustomer = customerUsecase.getAllCustomer(serverError);
-      }
-      ResponseWriter.writeToResponseBodySuccess(resp, allCustomer);
+      Long customerIdLong = Long.valueOf(customerId);
+      orderUsecase.getAllOrderByCustomerId(serverError, customerIdLong);
     } catch (NumberFormatException e) {
-      clientError.addActionError("get all deleted data", "invalid! query param deleted must true");
+      clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must number");
     }
   }
 
@@ -52,8 +43,8 @@ public class CustomerController extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    CustomerCreateRequest customerCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerCreateRequest.class);
-    customerUsecase.createCustomer(serverError, clientError, customerCreateRequest);
+    OrderCreateRequest orderCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderCreateRequest.class);
+    orderUsecase.createOrder(serverError, clientError, orderCreateRequest);
     if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
       return;
     }
@@ -64,9 +55,8 @@ public class CustomerController extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    CustomerUpdateRequest customerUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerUpdateRequest.class);
-    customerUsecase.updateCustomer(serverError, clientError, customerUpdateRequest);
-
+    OrderUpdateRequest orderUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderUpdateRequest.class);
+    orderUsecase.updateOrder(serverError, clientError, orderUpdateRequest);
     if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
       return;
     }
@@ -77,10 +67,10 @@ public class CustomerController extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String customerId = req.getParameter("delete");
+    String orderId = req.getParameter("delete");
     try {
-      Long customerIdLong = Long.parseLong(customerId);
-      customerUsecase.deleteCustomer(serverError, clientError, customerIdLong);
+      Long orderIdLong = Long.parseLong(orderId);
+      orderUsecase.deleteOrder(serverError, clientError, orderIdLong);
       ResponseWriter.writeToResponseBodySuccess(resp, null);
     } catch (NumberFormatException e) {
       throw new RuntimeException(e);

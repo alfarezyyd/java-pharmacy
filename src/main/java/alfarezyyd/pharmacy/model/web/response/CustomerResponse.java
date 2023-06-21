@@ -1,26 +1,62 @@
 package alfarezyyd.pharmacy.model.web.response;
 
 import alfarezyyd.pharmacy.model.entity.Gender;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class CustomerResponse {
   private Long id;
-  private AddressResponse addressResponse;
+  @JsonProperty("full_name")
   private String fullName;
+  @JsonProperty("date_of_birth")
+
   private String dateOfBirth;
   private Gender gender;
   private String phone;
+  @JsonProperty("created_at")
   private String createdAt;
+  @JsonProperty("updated_at")
+
   private String updatedAt;
+  @JsonProperty("deleted_at")
   private String deletedAt;
+
+  public Long getId() {
+    return id;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public String getDateOfBirth() {
+    return dateOfBirth;
+  }
+
+  public Gender getGender() {
+    return gender;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public String getCreatedAt() {
+    return createdAt;
+  }
+
+  public String getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public String getDeletedAt() {
+    return deletedAt;
+  }
 
   public void setId(Long id) {
     this.id = id;
   }
 
-  public void setAddressResponse(AddressResponse addressResponse) {
-    this.addressResponse = addressResponse;
-  }
 
   public void setFullName(String fullName) {
     this.fullName = fullName;

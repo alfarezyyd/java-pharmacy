@@ -51,10 +51,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         customer.setId(resultSet.getLong("id"));
         customer.setFullName(resultSet.getString("full_name"));
         customer.setDateOfBirth(resultSet.getDate("date_of_birth").toLocalDate());
+        customer.setPhone(resultSet.getString("phone"));
         customer.setGender(Gender.valueOf(resultSet.getString("gender")));
+        customer.setCreatedAt(resultSet.getTimestamp("created_at"));
+        customer.setUpdatedAt(resultSet.getTimestamp("updated_at"));
+        customer.setDeletedAt(resultSet.getTimestamp("deleted_at"));
         allCustomer.add(customer);
       }
-
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -65,7 +68,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   @Override
   public LinkedList<Customer> getAllDeletedCustomer(Connection connection) throws DatabaseError {
     String sqlSyntax = """
-        SELECT * FROM customers WHERE deleted_at != NULL;
+        SELECT * FROM customers WHERE deleted_at IS NOT NULL;
         """;
     LinkedList<Customer> allDeletedCustomer = new LinkedList<>();
     try (Statement statement = connection.createStatement()) {
@@ -75,7 +78,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         customer.setId(resultSet.getLong("id"));
         customer.setFullName(resultSet.getString("full_name"));
         customer.setDateOfBirth(resultSet.getDate("date_of_birth").toLocalDate());
+        customer.setPhone(resultSet.getString("phone"));
         customer.setGender(Gender.valueOf(resultSet.getString("gender")));
+        customer.setCreatedAt(resultSet.getTimestamp("created_at"));
+        customer.setUpdatedAt(resultSet.getTimestamp("updated_at"));
+        customer.setDeletedAt(resultSet.getTimestamp("deleted_at"));
         allDeletedCustomer.add(customer);
       }
     } catch (SQLException e) {

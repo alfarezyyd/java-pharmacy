@@ -4,10 +4,19 @@ import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 public class ExceptionCheck {
   public static Boolean exceptionCheck(ServerError serverError, ClientError clientError, HttpServletResponse resp) {
-    if (serverError.hasErrors() || clientError.hasErrors()) {
-      Model.writeToResponseBodyError(serverError, clientError, resp);
+    if (clientError.hasErrors()) {
+      ResponseWriter.writeToResponseBodyClientError(clientError, resp);
+      return true;
+    } else if (serverError.hasErrors()) {
+      ResponseWriter.writeToResponseBodyServerError(serverError, resp);
+      Map<String, Map<String, LinkedList<?>>> errorsResponse = new HashMap<>();
+      System.out.println(errorsResponse);
       return true;
     }
     return false;

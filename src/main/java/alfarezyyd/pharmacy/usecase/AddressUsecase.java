@@ -7,7 +7,7 @@ import alfarezyyd.pharmacy.model.web.address.AddressUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.AddressResponse;
 
 public interface AddressUsecase {
-  AddressResponse findAddressById(ServerError serverError, Long addressId);
+  AddressResponse findAddressById(ServerError serverError, ClientError clientError, Long addressId);
 
   void createAddress(ServerError serverError, AddressCreateRequest addressCreateRequest, Long id);
 

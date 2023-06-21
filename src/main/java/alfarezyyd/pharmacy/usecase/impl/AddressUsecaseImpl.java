@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.usecase.impl;
 
+import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
@@ -11,6 +12,7 @@ import alfarezyyd.pharmacy.repository.AddressRepository;
 import alfarezyyd.pharmacy.usecase.AddressUsecase;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class AddressUsecaseImpl implements AddressUsecase {
@@ -23,14 +25,16 @@ public class AddressUsecaseImpl implements AddressUsecase {
   }
 
   @Override
-  public AddressResponse findAddressById(ServerError serverError, Long addressId) {
-    try {
-      Address address = addressRepository.getAddressById(hikariDataSource.getConnection(), addressId);
+  public AddressResponse findAddressById(ServerError serverError, ClientError clientError, Long addressId) {
+    try (Connection connection = hikariDataSource.getConnection()) {
+      Address address = addressRepository.getAddressById(connection, addressId);
       return Model.convertToAddressResponse(address);
+    } catch (ActionError e) {
+      clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
-      return new AddressResponse();
     }
+    return new AddressResponse();
   }
 
   @Override
@@ -66,6 +70,8 @@ public class AddressUsecaseImpl implements AddressUsecase {
         address.setDescription(addressUpdateRequest.getDescription());
         addressRepository.updateAddress(hikariDataSource.getConnection(), address);
       }
+    } catch (ActionError e) {
+      clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
     }

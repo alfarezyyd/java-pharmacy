@@ -15,19 +15,20 @@ public class MedicineRepositoryImpl implements MedicineRepository {
         SELECT * FROM medicines WHERE deleted_at IS NULL
         """;
     LinkedList<Medicine> allMedicine = new LinkedList<>();
-    try {
-      Statement statement = connection.createStatement();
-      ResultSet resultSet = statement.executeQuery(sqlSyntax);
+    try (Statement statement = connection.createStatement();
+         ResultSet resultSet = statement.executeQuery(sqlSyntax)) {
       while (resultSet.next()) {
         Medicine medicine = new Medicine();
         medicine.setId(resultSet.getLong("id"));
         medicine.setName(resultSet.getString("name"));
         medicine.setBrand(resultSet.getString("brand"));
         medicine.setPrice(resultSet.getInt("price"));
+        medicine.setStock(resultSet.getInt("stock"));
+        medicine.setCreatedAt(resultSet.getTimestamp("created_at"));
+        medicine.setUpdatedAt(resultSet.getTimestamp("updated_at"));
+        medicine.setDeletedAt(resultSet.getTimestamp("deleted_at"));
         allMedicine.add(medicine);
       }
-      statement.close();
-      connection.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -37,12 +38,11 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   @Override
   public LinkedList<Medicine> getAllDeletedMedicine(Connection connection) throws DatabaseError {
     String sqlSyntax = """
-        SELECT * FROM medicines WHERE updated_at IS NOT NULL
+        SELECT * FROM medicines WHERE deleted_at IS NOT NULL
         """;
     LinkedList<Medicine> allMedicine = new LinkedList<>();
-    try {
-      Statement statement = connection.createStatement();
-      ResultSet resultSet = statement.executeQuery(sqlSyntax);
+    try (Statement statement = connection.createStatement();
+         ResultSet resultSet = statement.executeQuery(sqlSyntax)) {
       while (resultSet.next()) {
         Medicine medicine = new Medicine();
         medicine.setId(resultSet.getLong("id"));
@@ -51,8 +51,6 @@ public class MedicineRepositoryImpl implements MedicineRepository {
         medicine.setPrice(resultSet.getInt("price"));
         allMedicine.add(medicine);
       }
-      statement.close();
-      connection.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -61,19 +59,18 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   }
 
   @Override
-  public Medicine getMedicineById(Connection connection, Long id) throws DatabaseError, ActionError {
+  public Medicine getMedicineById(Connection connection, Long medicineId) throws DatabaseError, ActionError {
     String sqlSyntax = """
         SELECT * FROM medicines WHERE id = ?
         """;
     Medicine medicine;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setLong(1, id);
+      preparedStatement.setLong(1, medicineId);
       ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {
         medicine = new Medicine();
         medicine.setId(resultSet.getLong("id"));
         medicine.setName(resultSet.getString("name"));
-        medicine.setDescription(resultSet.getString("description"));
         medicine.setBrand(resultSet.getString("brand"));
         medicine.setPrice(resultSet.getInt("price"));
         medicine.setStock(resultSet.getInt("stock"));
@@ -83,7 +80,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       } else {
         throw new ActionError("find medicine", "medicine not found");
       }
-      connection.close();
+      resultSet.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -91,25 +88,24 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   }
 
   @Override
-  public Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError, ActionError {
+  public Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError {
     String sqlSyntax = """
-        INSERT INTO medicines(name, description, brand, price, stock) VALUES(?,?,?,?,?)
+        INSERT INTO medicines(name, brand, price, stock) VALUES(?,?,?,?)
         """;
     long generatedKeys = 0L;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
       preparedStatement.setString(1, medicine.getName());
-      preparedStatement.setString(2, medicine.getDescription());
-      preparedStatement.setString(3, medicine.getBrand());
-      preparedStatement.setInt(4, medicine.getPrice());
-      preparedStatement.setInt(5, medicine.getStock());
+      preparedStatement.setString(2, medicine.getBrand());
+      preparedStatement.setInt(3, medicine.getPrice());
+      preparedStatement.setInt(4, medicine.getStock());
       preparedStatement.executeUpdate();
       ResultSet resultSet = preparedStatement.getGeneratedKeys();
       if (resultSet.next()) {
         generatedKeys = resultSet.getLong(1);
       }
-      connection.close();
+      resultSet.close();
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
     return generatedKeys;
   }
@@ -117,16 +113,16 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   @Override
   public void updateMedicine(Connection connection, Medicine medicine) throws DatabaseError {
     String sqlSyntax = """
-        UPDATE medicines SET name=?, description=?, brand=?, price=?, stock=?, updated_at=? WHERE id=?
+        UPDATE medicines SET name=?, brand=?, price=?, stock=?, updated_at=? WHERE id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setString(1, medicine.getName());
-      preparedStatement.setString(2, medicine.getDescription());
-      preparedStatement.setString(3, medicine.getBrand());
-      preparedStatement.setInt(4, medicine.getPrice());
-      preparedStatement.setInt(5, medicine.getStock());
+      preparedStatement.setString(2, medicine.getBrand());
+      preparedStatement.setInt(3, medicine.getPrice());
+      preparedStatement.setInt(4, medicine.getStock());
+      preparedStatement.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+      preparedStatement.setLong(6, medicine.getId());
       preparedStatement.executeUpdate();
-      connection.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -141,7 +137,6 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       preparedStatement.setTimestamp(1, medicine.getDeletedAt());
       preparedStatement.setLong(2, medicine.getId());
       preparedStatement.executeUpdate();
-      connection.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -155,7 +150,6 @@ public class MedicineRepositoryImpl implements MedicineRepository {
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, medicineId);
       preparedStatement.executeUpdate();
-      connection.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }

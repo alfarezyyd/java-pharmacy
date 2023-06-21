@@ -79,7 +79,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       }
       return;
     }
-    try (Connection connection = hikariDataSource.getConnection()){
+    try (Connection connection = hikariDataSource.getConnection()) {
       Customer customer = new Customer();
       customer.setFullName(customerCreateRequest.getFullName());
       customer.setDateOfBirth(LocalDate.parse(customerCreateRequest.getDateOfBirth()));
@@ -102,7 +102,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
         clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
       }
     }
-    try(Connection connection = hikariDataSource.getConnection()) {
+    try (Connection connection = hikariDataSource.getConnection()) {
       Customer customer = customerRepository.getCustomerById(connection, customerUpdateRequest.getId());
       if (customer != null) {
         customer.setFullName(customerUpdateRequest.getFullName());
@@ -121,7 +121,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
 
   @Override
   public void deleteCustomer(ServerError serverError, ClientError clientError, Long customerId) {
-    try (Connection connection = hikariDataSource.getConnection()){
+    try (Connection connection = hikariDataSource.getConnection()) {
       Customer customer = customerRepository.getCustomerById(connection, customerId);
       if (customer != null) {
         if (customer.getDeletedAt() == null) {

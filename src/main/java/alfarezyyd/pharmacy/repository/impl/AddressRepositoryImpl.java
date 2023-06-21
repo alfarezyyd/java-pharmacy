@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.repository.impl;
 
+import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.repository.AddressRepository;
@@ -10,15 +11,16 @@ import java.util.LinkedList;
 
 public class AddressRepositoryImpl implements AddressRepository {
   @Override
-  public Address getAddressById(Connection connection, Long addressId) throws DatabaseError {
+  public Address getAddressById(Connection connection, Long addressId) throws DatabaseError, ActionError {
     String sqlSyntax = """
         SELECT * FROM addresses WHERE id = ?
         """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
-         ResultSet resultSet = preparedStatement.executeQuery()) {
+    Address address;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, addressId);
-      Address address = new Address();
+      ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {
+        address = new Address();
         address.setId(resultSet.getLong("id"));
         address.setStreet(resultSet.getString("street"));
         address.setCity(resultSet.getString("city"));
@@ -30,12 +32,15 @@ public class AddressRepositoryImpl implements AddressRepository {
         address.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
         address.setUpdatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime());
         address.setDeletedAt(resultSet.getTimestamp("deleted_at").toLocalDateTime());
+      }else{
+        throw new ActionError("find address", "address not found");
       }
-      connection.close();
-      return address;
+      resultSet.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
+    return address;
+
   }
 
   @Override

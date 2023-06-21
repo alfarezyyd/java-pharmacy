@@ -7,8 +7,10 @@ import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.Medicine;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineCreateRequest;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineUpdateRequest;
+import alfarezyyd.pharmacy.model.web.response.MedicineInformationResponse;
 import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import alfarezyyd.pharmacy.repository.MedicineRepository;
+import alfarezyyd.pharmacy.usecase.MedicineInformationUsecase;
 import alfarezyyd.pharmacy.usecase.MedicineUsecase;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
@@ -23,19 +25,22 @@ import java.util.Set;
 public class MedicineUsecaseImpl implements MedicineUsecase {
   private final MedicineRepository medicineRepository;
   private final HikariDataSource hikariDataSource;
+  private final MedicineInformationUsecase medicineInformationUsecase;
 
-  public MedicineUsecaseImpl(MedicineRepository medicineRepository, HikariDataSource hikariDataSource) {
+  public MedicineUsecaseImpl(MedicineRepository medicineRepository, HikariDataSource hikariDataSource, MedicineInformationUsecase medicineInformationUsecase) {
     this.medicineRepository = medicineRepository;
     this.hikariDataSource = hikariDataSource;
+    this.medicineInformationUsecase = medicineInformationUsecase;
   }
 
   @Override
-  public LinkedList<MedicineResponse> getAllMedicine(ServerError serverError) {
+  public LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError) {
     LinkedList<MedicineResponse> allMedicineResponse = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Medicine> allMedicine = medicineRepository.getAllMedicine(connection);
       for (Medicine medicine : allMedicine) {
-        MedicineResponse medicineResponse = Model.convertToMedicineResponse(medicine);
+        MedicineInformationResponse medicineInformationResponse = medicineInformationUsecase.getMedicineInformationById(serverError, clientError, medicine.getId());
+        MedicineResponse medicineResponse = Model.convertToMedicineResponse(medicine, medicineInformationResponse);
         allMedicineResponse.add(medicineResponse);
       }
     } catch (SQLException e) {
@@ -45,12 +50,13 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
   }
 
   @Override
-  public LinkedList<MedicineResponse> getAllDeletedMedicine(ServerError serverError) {
+  public LinkedList<MedicineResponse> getAllDeletedMedicine(ServerError serverError, ClientError clientError) {
     LinkedList<MedicineResponse> allMedicineResponse = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Medicine> allMedicine = medicineRepository.getAllDeletedMedicine(connection);
       for (Medicine medicine : allMedicine) {
-        MedicineResponse medicineResponse = Model.convertToMedicineResponse(medicine);
+        MedicineInformationResponse medicineInformationResponse = medicineInformationUsecase.getMedicineInformationById(serverError, clientError, medicine.getId());
+        MedicineResponse medicineResponse = Model.convertToMedicineResponse(medicine, medicineInformationResponse);
         allMedicineResponse.add(medicineResponse);
       }
     } catch (SQLException e) {
@@ -72,13 +78,11 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
     try (Connection connection = hikariDataSource.getConnection()) {
       Medicine medicine = new Medicine();
       medicine.setName(medicineCreateRequest.getName());
-      medicine.setDescription(medicineCreateRequest.getDescription());
       medicine.setBrand(medicineCreateRequest.getBrand());
       medicine.setPrice(medicineCreateRequest.getPrice());
       medicine.setStock(medicineCreateRequest.getStock());
-      medicineRepository.createMedicine(connection, medicine);
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
+      Long idNewMedicine = medicineRepository.createMedicine(connection, medicine);
+      medicineInformationUsecase.createMedicineInformation(serverError, clientError, medicineCreateRequest.getMedicineInformationCreateRequest(), idNewMedicine);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -98,11 +102,11 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
       if (medicineData != null) {
         medicineData.setId(medicineUpdateRequest.getId());
         medicineData.setName(medicineUpdateRequest.getName());
-        medicineData.setDescription(medicineUpdateRequest.getDescription());
         medicineData.setBrand(medicineUpdateRequest.getBrand());
         medicineData.setPrice(medicineUpdateRequest.getPrice());
         medicineData.setStock(medicineUpdateRequest.getStock());
         medicineRepository.updateMedicine(connection, medicineData);
+        medicineInformationUsecase.updateMedicineInformation(serverError, clientError, medicineUpdateRequest.getMedicineInformationCreateRequest(), medicineData.getId());
       }
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
@@ -120,6 +124,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
           medicine.setDeletedAt(new Timestamp(System.currentTimeMillis()));
           medicineRepository.softDeleteMedicine(connection, medicine);
         } else {
+          medicineInformationUsecase.deleteMedicineInformation(serverError, clientError, medicineId);
           medicineRepository.permanentlyDeleteMedicine(connection, medicineId);
         }
       }

@@ -14,6 +14,49 @@ public class AddressResponse {
   private String updatedAt;
   private String deletedAt;
 
+  public Long getId() {
+    return id;
+  }
+
+  public String getStreet() {
+    return street;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public String getPostalCode() {
+    return postalCode;
+  }
+
+  public Boolean getDefault() {
+    return isDefault;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getCreatedAt() {
+    return createdAt;
+  }
+
+  public String getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public String getDeletedAt() {
+    return deletedAt;
+  }
 
   public void setId(Long id) {
     this.id = id;
@@ -64,4 +107,5 @@ public class AddressResponse {
   public void setDeletedAt(String deletedAt) {
     this.deletedAt = deletedAt;
   }
+
 }

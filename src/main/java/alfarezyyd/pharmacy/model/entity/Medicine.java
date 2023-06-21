@@ -6,7 +6,6 @@ import java.util.Objects;
 public class Medicine {
   private Long id;
   private String name;
-  private String description;
   private String brand;
   private Integer price;
   private Integer stock;
@@ -30,13 +29,7 @@ public class Medicine {
     this.name = name;
   }
 
-  public String getDescription() {
-    return description;
-  }
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
 
   public String getBrand() {
     return brand;
@@ -95,7 +88,6 @@ public class Medicine {
 
     if (!id.equals(medicine.id)) return false;
     if (!name.equals(medicine.name)) return false;
-    if (!description.equals(medicine.description)) return false;
     if (!brand.equals(medicine.brand)) return false;
     if (!price.equals(medicine.price)) return false;
     if (!stock.equals(medicine.stock)) return false;
@@ -108,7 +100,6 @@ public class Medicine {
   public int hashCode() {
     int result = id.hashCode();
     result = 31 * result + name.hashCode();
-    result = 31 * result + description.hashCode();
     result = 31 * result + brand.hashCode();
     result = 31 * result + price.hashCode();
     result = 31 * result + stock.hashCode();
@@ -123,7 +114,6 @@ public class Medicine {
     return "Medicine{" +
         "id=" + id +
         ", name='" + name + '\'' +
-        ", description='" + description + '\'' +
         ", brand='" + brand + '\'' +
         ", price=" + price +
         ", stock=" + stock +

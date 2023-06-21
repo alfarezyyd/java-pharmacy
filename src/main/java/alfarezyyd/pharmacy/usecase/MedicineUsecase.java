@@ -9,9 +9,9 @@ import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import java.util.LinkedList;
 
 public interface MedicineUsecase {
-  LinkedList<MedicineResponse> getAllMedicine(ServerError serverError);
+  LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError);
 
-  LinkedList<MedicineResponse> getAllDeletedMedicine(ServerError serverError);
+  LinkedList<MedicineResponse> getAllDeletedMedicine(ServerError serverError, ClientError clientError);
 
   void createMedicine(ServerError serverError, ClientError clientError, MedicineCreateRequest medicineCreateRequest);
 
