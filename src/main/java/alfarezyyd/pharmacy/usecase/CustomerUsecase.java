@@ -11,7 +11,7 @@ import java.util.LinkedList;
 public interface CustomerUsecase {
   LinkedList<CustomerResponse> getAllCustomer(ServerError serverError);
 
-  LinkedList<CustomerResponse> getAllDeletedCustomer(ServerError serverError);
+  CustomerResponse getDetailCustomer(ServerError serverError, ClientError clientError, Long customerId);
 
   void createCustomer(ServerError serverError, ClientError clientError, CustomerCreateRequest customerCreateRequest);
 

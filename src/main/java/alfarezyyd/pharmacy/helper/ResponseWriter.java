@@ -1,7 +1,6 @@
 package alfarezyyd.pharmacy.helper;
 
 import alfarezyyd.pharmacy.exception.ClientError;
-import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,7 @@ public class ResponseWriter {
     }
   }
 
-  public static void writeToResponseBodyClientError(ClientError clientError, HttpServletResponse resp) {
+  public static void writeToResponseBodyClientError(HttpServletResponse resp, ClientError clientError) {
     Map<String, Map<String, LinkedList<?>>> errorsResponse = new HashMap<>();
     errorsResponse.put("client_errors", clientError.getClientErrors());
     try {
@@ -43,7 +42,7 @@ public class ResponseWriter {
   }
 
 
-  public static void writeToResponseBodyServerError(ServerError serverError, HttpServletResponse resp) {
+  public static void writeToResponseBodyServerError(HttpServletResponse resp) {
     try {
       Map<String, Object> webResponse = new HashMap<>();
       webResponse.put("code", HttpStatus.INTERNAL_SERVER_ERROR);

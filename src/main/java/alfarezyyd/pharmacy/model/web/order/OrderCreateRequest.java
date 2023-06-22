@@ -1,19 +1,38 @@
 package alfarezyyd.pharmacy.model.web.order;
 
-import alfarezyyd.pharmacy.model.entity.OrderStatus;
-import alfarezyyd.pharmacy.model.entity.PaymentMethod;
-import alfarezyyd.pharmacy.model.entity.PaymentStatus;
-import alfarezyyd.pharmacy.model.entity.ShippingMethod;
+import alfarezyyd.pharmacy.constraint.ValidOrderStatusConstraint;
+import alfarezyyd.pharmacy.constraint.ValidPaymentMethodConstraint;
+import alfarezyyd.pharmacy.constraint.ValidPaymentStatusConstraint;
+import alfarezyyd.pharmacy.constraint.ValidShippingMethodConstraint;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class OrderCreateRequest {
   @NotNull
+  @JsonProperty("customer_id")
   private Long customerId;
+  @JsonProperty("total_amount")
+  @NotNull
   private Float totalAmount;
-  private PaymentMethod paymentMethod;
-  private PaymentStatus paymentStatus;
-  private OrderStatus orderStatus;
-  private ShippingMethod shippingMethod;
+  @JsonProperty("payment_method")
+  @NotBlank
+  @ValidPaymentMethodConstraint
+  private String paymentMethod;
+  @JsonProperty("payment_status")
+  @NotBlank
+  @ValidPaymentStatusConstraint
+  private String paymentStatus;
+  @JsonProperty("order_status")
+  @NotBlank
+  @ValidOrderStatusConstraint
+  private String orderStatus;
+  @JsonProperty("shipping_method")
+  @NotBlank
+  @ValidShippingMethodConstraint
+  private String shippingMethod;
+  @JsonProperty("tracking_number")
+  @NotBlank
   private String trackingNumber;
 
   public Long getCustomerId() {
@@ -24,19 +43,19 @@ public class OrderCreateRequest {
     return totalAmount;
   }
 
-  public PaymentMethod getPaymentMethod() {
+  public String getPaymentMethod() {
     return paymentMethod;
   }
 
-  public PaymentStatus getPaymentStatus() {
+  public String getPaymentStatus() {
     return paymentStatus;
   }
 
-  public OrderStatus getOrderStatus() {
+  public String getOrderStatus() {
     return orderStatus;
   }
 
-  public ShippingMethod getShippingMethod() {
+  public String getShippingMethod() {
     return shippingMethod;
   }
 

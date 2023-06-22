@@ -3,8 +3,6 @@ package alfarezyyd.pharmacy.helper;
 import alfarezyyd.pharmacy.model.entity.*;
 import alfarezyyd.pharmacy.model.web.response.*;
 
-import java.util.*;
-
 public class Model {
   public static CustomerResponse convertToCustomerResponse(Customer customer) {
     CustomerResponse customerResponse = new CustomerResponse();
@@ -73,7 +71,7 @@ public class Model {
     orderResponse.setShippingMethod(order.getShippingMethod().getValue());
     orderResponse.setTrackingNumber(order.getTrackingNumber());
     orderResponse.setCreatedAt(order.getCreatedAt().toString());
-    orderResponse.setUpdatedAt(Optional.of(order.getUpdatedAt().toString()).orElse(null));
+    orderResponse.setUpdatedAt(order.getUpdatedAt() != null ? order.getUpdatedAt().toString() : null);
     return orderResponse;
   }
 

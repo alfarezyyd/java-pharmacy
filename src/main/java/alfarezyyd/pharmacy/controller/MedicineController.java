@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 
-@WebServlet(urlPatterns = "/api/medicines")
+@WebServlet(urlPatterns = "/api/medicines/*")
 public class MedicineController extends HttpServlet {
   private MedicineUsecase medicineUsecase;
 
@@ -32,19 +32,17 @@ public class MedicineController extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String deleted = req.getParameter("deleted");
-    try {
-      boolean isDeleted = Boolean.parseBoolean(deleted);
-      LinkedList<MedicineResponse> allMedicine;
-      if (isDeleted) {
-        allMedicine = medicineUsecase.getAllDeletedMedicine(serverError, clientError);
-      } else {
-        allMedicine = medicineUsecase.getAllMedicine(serverError, clientError);
-      }
-      ResponseWriter.writeToResponseBodySuccess(resp, allMedicine);
-    } catch (NumberFormatException e) {
-      clientError.addActionError("get all deleted data", "invalid! query param deleted must true");
+    String requestURI = req.getRequestURI();
+    LinkedList<MedicineResponse> allMedicine;
+    if (requestURI.equals("deleted")) {
+      allMedicine = medicineUsecase.getAllDeletedMedicine(serverError, clientError);
+    } else {
+      allMedicine = medicineUsecase.getAllMedicine(serverError, clientError);
     }
+    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+      return;
+    }
+    ResponseWriter.writeToResponseBodySuccess(resp, allMedicine);
   }
 
   @Override
@@ -75,10 +73,10 @@ public class MedicineController extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String customerId = req.getParameter("medicine-id");
+    String medicineId = req.getParameter("medicine-id");
     try {
-      Long customerIdLong = Long.parseLong(customerId);
-      medicineUsecase.deleteMedicine(serverError, clientError, customerIdLong);
+      Long medicineIdLong = Long.parseLong(medicineId);
+      medicineUsecase.deleteMedicine(serverError, clientError, medicineIdLong);
       ResponseWriter.writeToResponseBodySuccess(resp, null);
     } catch (NumberFormatException e) {
       clientError.addActionError("delete medicine", "invalid! query param {medicine-id} must number");

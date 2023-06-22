@@ -11,10 +11,10 @@ import java.util.Map;
 public class ExceptionCheck {
   public static Boolean exceptionCheck(ServerError serverError, ClientError clientError, HttpServletResponse resp) {
     if (clientError.hasErrors()) {
-      ResponseWriter.writeToResponseBodyClientError(clientError, resp);
+      ResponseWriter.writeToResponseBodyClientError(resp, clientError);
       return true;
     } else if (serverError.hasErrors()) {
-      ResponseWriter.writeToResponseBodyServerError(serverError, resp);
+      ResponseWriter.writeToResponseBodyServerError(resp);
       Map<String, Map<String, LinkedList<?>>> errorsResponse = new HashMap<>();
       System.out.println(errorsResponse);
       return true;

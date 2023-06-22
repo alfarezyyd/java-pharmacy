@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 
-@WebServlet(urlPatterns = "/api/customers")
+@WebServlet(urlPatterns = "/api/customers/*")
 public class CustomerController extends HttpServlet {
   private CustomerUsecase customerUsecase = DependencyContainer.getInstance().getCustomerUsecase();
 
@@ -33,19 +33,24 @@ public class CustomerController extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    String deleted = req.getParameter("deleted");
-    try {
-      boolean isDeleted = Boolean.parseBoolean(deleted);
-      LinkedList<CustomerResponse> allCustomer;
-      if (isDeleted) {
-        allCustomer = customerUsecase.getAllDeletedCustomer(serverError);
-      } else {
-        allCustomer = customerUsecase.getAllCustomer(serverError);
+    String pathInfo = req.getPathInfo();
+    LinkedList<CustomerResponse> allCustomer = new LinkedList<>();
+    if (pathInfo.equals("/details")) {
+      try {
+        String customerId = req.getParameter("customer-id");
+        Long customerIdLong = Long.valueOf(customerId);
+        allCustomer.add(customerUsecase.getDetailCustomer(serverError, clientError, customerIdLong));
+      } catch (NumberFormatException e) {
+        clientError.addActionError("get detail customer", "failed! query param {customer-id} not a number");
       }
-      ResponseWriter.writeToResponseBodySuccess(resp, allCustomer);
-    } catch (NumberFormatException e) {
-      clientError.addActionError("get all deleted data", "invalid! query param deleted must true");
+    } else {
+      allCustomer = customerUsecase.getAllCustomer(serverError);
     }
+
+    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+      return;
+    }
+    ResponseWriter.writeToResponseBodySuccess(resp, allCustomer);
   }
 
   @Override
@@ -77,7 +82,7 @@ public class CustomerController extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String customerId = req.getParameter("delete");
+    String customerId = req.getParameter("customer-id");
     try {
       Long customerIdLong = Long.parseLong(customerId);
       customerUsecase.deleteCustomer(serverError, clientError, customerIdLong);

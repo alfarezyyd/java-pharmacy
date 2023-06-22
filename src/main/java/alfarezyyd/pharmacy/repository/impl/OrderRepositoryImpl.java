@@ -21,11 +21,12 @@ public class OrderRepositoryImpl implements OrderRepository {
       while (resultSet.next()) {
         Order order = new Order();
         order.setId(resultSet.getLong("id"));
+        order.setCustomerId(resultSet.getLong("customer_id"));
         order.setTotalAmount(resultSet.getFloat("total_amount"));
-        order.setPaymentMethod(PaymentMethod.valueOf(resultSet.getString("payment_method")));
-        order.setPaymentStatus(PaymentStatus.valueOf(resultSet.getString("payment_status")));
-        order.setOrderStatus(OrderStatus.valueOf(resultSet.getString("order_status")));
-        order.setShippingMethod(ShippingMethod.valueOf(resultSet.getString("shipping_method")));
+        order.setPaymentMethod(PaymentMethod.fromValue(resultSet.getString("payment_method")));
+        order.setPaymentStatus(PaymentStatus.fromValue(resultSet.getString("payment_status")));
+        order.setOrderStatus(OrderStatus.fromValue(resultSet.getString("order_status")));
+        order.setShippingMethod(ShippingMethod.fromValue(resultSet.getString("shipping_method")));
         order.setTrackingNumber(resultSet.getString("tracking_number"));
         order.setCreatedAt(resultSet.getTimestamp("created_at"));
         order.setUpdatedAt(resultSet.getTimestamp("updated_at"));
@@ -60,6 +61,24 @@ public class OrderRepositoryImpl implements OrderRepository {
         return orderId;
       } else {
         throw new ActionError("create order", "create order failed");
+      }
+    } catch (SQLException e) {
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+    }
+  }
+
+  @Override
+  public Boolean checkOrderIfExists(Connection connection, Long orderId) throws DatabaseError, ActionError {
+    String sqlSyntax = """
+            SELECT * FROM orders WHERE id = ?;
+        """;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+      preparedStatement.setLong(1, orderId);
+      ResultSet resultSet = preparedStatement.executeQuery();
+      if (resultSet.next()) {
+        return true;
+      } else {
+        throw new ActionError("check order if exists", "failed! order doesn't exists");
       }
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());

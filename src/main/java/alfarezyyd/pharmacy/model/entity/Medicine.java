@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.model.entity;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-public class Medicine {
+public class Medicine implements Identifiable {
   private Long id;
   private String name;
   private String brand;

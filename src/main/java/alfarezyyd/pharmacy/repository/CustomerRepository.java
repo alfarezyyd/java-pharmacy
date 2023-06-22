@@ -11,9 +11,7 @@ public interface CustomerRepository {
 
   LinkedList<Customer> getAllCustomer(Connection connection) throws DatabaseError;
 
-  LinkedList<Customer> getAllDeletedCustomer(Connection connection) throws DatabaseError;
-
-  Customer getCustomerById(Connection connection, Long customerId) throws DatabaseError, ActionError;
+  Boolean checkCustomerIfExists(Connection connection, Long customerId) throws DatabaseError, ActionError;
 
   Long createCustomer(Connection connection, Customer customer) throws DatabaseError, ActionError;
 

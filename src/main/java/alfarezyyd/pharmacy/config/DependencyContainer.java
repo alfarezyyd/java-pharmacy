@@ -37,7 +37,7 @@ public class DependencyContainer {
 
     // Order
     OrderRepository orderRepository = new OrderRepositoryImpl();
-    orderUsecase = new OrderUsecaseImpl(orderRepository, hikariDataSource);
+    orderUsecase = new OrderUsecaseImpl(customerRepository, orderRepository, hikariDataSource);
   }
 
 

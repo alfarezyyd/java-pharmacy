@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.model.entity;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-public class Order {
+public class Order  implements Identifiable {
   private Long id;
   private Long customerId;
   private Float totalAmount;

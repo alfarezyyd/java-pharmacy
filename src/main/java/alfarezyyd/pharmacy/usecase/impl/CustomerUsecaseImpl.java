@@ -14,6 +14,7 @@ import alfarezyyd.pharmacy.repository.AddressRepository;
 import alfarezyyd.pharmacy.repository.CustomerRepository;
 import alfarezyyd.pharmacy.usecase.AddressUsecase;
 import alfarezyyd.pharmacy.usecase.CustomerUsecase;
+import alfarezyyd.pharmacy.util.SearchingUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.validation.ConstraintViolation;
@@ -22,7 +23,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -55,19 +55,20 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
   }
 
   @Override
-  public LinkedList<CustomerResponse> getAllDeletedCustomer(ServerError serverError) {
-    LinkedList<CustomerResponse> customerResponses = new LinkedList<>();
-
+  public CustomerResponse getDetailCustomer(ServerError serverError, ClientError clientError, Long customerId) {
+    CustomerResponse customerResponse = new CustomerResponse();
     try (Connection connection = hikariDataSource.getConnection()) {
-      LinkedList<Customer> allCustomer = customerRepository.getAllDeletedCustomer(connection);
-      for (var customer : allCustomer) {
-        customerResponses.add(Model.convertToCustomerResponse(customer));
+      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      Customer customer = SearchingUtil.searchOperation(allCustomer, customerId);
+      if (customer == null) {
+        clientError.addActionError("find customer", "failed! customer not found!");
+        return null;
       }
+      customerResponse = Model.convertToCustomerResponse(customer);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
     }
-    return customerResponses;
-
+    return customerResponse;
   }
 
   @Override
@@ -103,8 +104,9 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       }
     }
     try (Connection connection = hikariDataSource.getConnection()) {
-      Customer customer = customerRepository.getCustomerById(connection, customerUpdateRequest.getId());
-      if (customer != null) {
+      Boolean isCustomerExists = customerRepository.checkCustomerIfExists(connection, customerUpdateRequest.getId());
+      if (isCustomerExists) {
+        Customer customer = new Customer();
         customer.setFullName(customerUpdateRequest.getFullName());
         customer.setDateOfBirth(LocalDate.parse(customerUpdateRequest.getDateOfBirth()));
         customer.setGender(Gender.valueOf(customerUpdateRequest.getGender()));
@@ -122,25 +124,13 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
   @Override
   public void deleteCustomer(ServerError serverError, ClientError clientError, Long customerId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      Customer customer = customerRepository.getCustomerById(connection, customerId);
-      if (customer != null) {
-        if (customer.getDeletedAt() == null) {
-          customer.setDeletedAt(new Timestamp(System.currentTimeMillis()));
-          customerRepository.softDeleteCustomer(connection, customer);
-          LinkedList<Address> allAddressByCustomerId = addressRepository.getAllAddressByCustomerId(connection, customer.getId());
-          ArrayList<Long> arrayOfAddressId = new ArrayList<>();
-          for (Address address : allAddressByCustomerId) {
-            arrayOfAddressId.add(address.getId());
-          }
-          addressRepository.softDeleteCustomerAddress(connection, arrayOfAddressId, customer.getId());
-
-        } else {
-          LinkedList<Address> allAddressByCustomerId = addressRepository.getAllAddressByCustomerId(connection, customer.getId());
-          for (Address address : allAddressByCustomerId) {
-            addressRepository.permanentlyDeleteCustomerAddress(connection, address.getId(), customerId);
-          }
-          customerRepository.permanentlyDeleteCustomer(connection, customer.getId());
+      Boolean isCustomerExists = customerRepository.checkCustomerIfExists(connection, customerId);
+      if (isCustomerExists) {
+        LinkedList<Address> allAddressByCustomerId = addressRepository.getAllAddressByCustomerId(connection, customerId);
+        for (Address address : allAddressByCustomerId) {
+          addressRepository.permanentlyDeleteCustomerAddress(connection, address.getId(), customerId);
         }
+        customerRepository.permanentlyDeleteCustomer(connection, customerId);
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
@@ -149,3 +139,6 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     }
   }
 }
+
+
+

@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.model.entity;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Address {
+public class Address implements Identifiable{
   private Long id;
   private Long customerId;
   private String street;

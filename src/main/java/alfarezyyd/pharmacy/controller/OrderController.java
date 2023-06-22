@@ -6,6 +6,7 @@ import alfarezyyd.pharmacy.helper.ExceptionCheck;
 import alfarezyyd.pharmacy.helper.ResponseWriter;
 import alfarezyyd.pharmacy.model.web.order.OrderCreateRequest;
 import alfarezyyd.pharmacy.model.web.order.OrderUpdateRequest;
+import alfarezyyd.pharmacy.model.web.response.OrderResponse;
 import alfarezyyd.pharmacy.usecase.OrderUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import jakarta.servlet.ServletConfig;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 @WebServlet(urlPatterns = "/api/orders")
 public class OrderController extends HttpServlet {
@@ -31,12 +33,21 @@ public class OrderController extends HttpServlet {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
     String customerId = req.getParameter("customer-id");
-    try {
-      Long customerIdLong = Long.valueOf(customerId);
-      orderUsecase.getAllOrderByCustomerId(serverError, customerIdLong);
-    } catch (NumberFormatException e) {
-      clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must number");
+    LinkedList<OrderResponse> allOrderByCustomerId = new LinkedList<>();
+    if (customerId == null) {
+      clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must not null");
+    } else {
+      try {
+        Long customerIdLong = Long.valueOf(customerId);
+        allOrderByCustomerId = orderUsecase.getAllOrderByCustomerId(serverError, customerIdLong);
+      } catch (NumberFormatException e) {
+        clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must number");
+      }
     }
+    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+      return;
+    }
+    ResponseWriter.writeToResponseBodySuccess(resp, allOrderByCustomerId);
   }
 
   @Override
@@ -57,9 +68,7 @@ public class OrderController extends HttpServlet {
     ServerError serverError = new ServerError();
     OrderUpdateRequest orderUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderUpdateRequest.class);
     orderUsecase.updateOrder(serverError, clientError, orderUpdateRequest);
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
-      return;
-    }
+
     ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 
@@ -67,13 +76,16 @@ public class OrderController extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String orderId = req.getParameter("delete");
+    String orderId = req.getParameter("order-id");
     try {
       Long orderIdLong = Long.parseLong(orderId);
       orderUsecase.deleteOrder(serverError, clientError, orderIdLong);
-      ResponseWriter.writeToResponseBodySuccess(resp, null);
     } catch (NumberFormatException e) {
       throw new RuntimeException(e);
     }
+    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+      return;
+    }
+    ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 }

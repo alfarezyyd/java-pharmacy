@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Customer {
+public class Customer  implements Identifiable {
   private Long id;
   private String fullName;
   private LocalDate dateOfBirth;
