@@ -20,7 +20,6 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
         """;
     LinkedList<MedicineInformation> allMedicineInformation = new LinkedList<>();
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setLong(1, id);
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         MedicineInformation medicineInformation = new MedicineInformation();
@@ -48,10 +47,13 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
     String sqlSyntax = """
         SELECT * FROM medicines_information WHERE id=?
         """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
+         ResultSet resultSet = preparedStatement.executeQuery()) {
       preparedStatement.setLong(1, id);
-      ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
+      boolean resultSetNext = resultSet.next();
+      resultSet.close();
+      if (resultSetNext) {
         return true;
       } else {
         throw new ActionError("check if medicine information exists", "medicine information not found");

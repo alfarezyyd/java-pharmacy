@@ -1,6 +1,5 @@
 package alfarezyyd.pharmacy.model.web.response;
 
-import alfarezyyd.pharmacy.model.entity.PaymentMethod;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 

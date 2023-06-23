@@ -3,6 +3,8 @@ package alfarezyyd.pharmacy.model.web.response;
 import alfarezyyd.pharmacy.model.entity.Gender;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.LinkedList;
+
 
 public class CustomerResponse {
   private Long id;
@@ -16,8 +18,9 @@ public class CustomerResponse {
   @JsonProperty("created_at")
   private String createdAt;
   @JsonProperty("updated_at")
-
   private String updatedAt;
+  @JsonProperty("addresses")
+  private LinkedList<AddressResponse> addressResponses;
 
   public Long getId() {
     return id;
@@ -77,4 +80,11 @@ public class CustomerResponse {
     this.updatedAt = updatedAt;
   }
 
+  public LinkedList<AddressResponse> getAddressResponses() {
+    return addressResponses;
+  }
+
+  public void setAddressResponses(LinkedList<AddressResponse> addressResponses) {
+    this.addressResponses = addressResponses;
+  }
 }

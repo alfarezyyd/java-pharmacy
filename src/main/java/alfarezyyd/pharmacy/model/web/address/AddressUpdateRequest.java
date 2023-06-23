@@ -9,6 +9,9 @@ public class AddressUpdateRequest {
   @NotBlank
   private Long id;
   @NotBlank
+  @JsonProperty("customer_id")
+  private Long customerId;
+  @NotBlank
   @Size(max = 255)
   private String street;
   @NotBlank
@@ -22,7 +25,7 @@ public class AddressUpdateRequest {
   private String country;
   @JsonProperty("postal_code")
   @NotBlank
-  @Size(max = 255)
+  @Size(max = 10)
   private String postalCode;
 
   @JsonProperty("is_default")
@@ -35,6 +38,12 @@ public class AddressUpdateRequest {
     return id;
   }
 
+
+  public Long getCustomerId() {
+    return customerId;
+  }
+
+  @NotNull
   public String getStreet() {
     return street;
   }

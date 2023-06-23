@@ -21,11 +21,14 @@ public class DependencyContainer {
 
     // Address
     AddressRepository addressRepository = new AddressRepositoryImpl();
-    addressUsecase = new AddressUsecaseImpl(addressRepository, hikariDataSource);
-
     // Customer
     CustomerRepository customerRepository = new CustomerRepositoryImpl();
+
+    addressUsecase = new AddressUsecaseImpl(addressRepository, hikariDataSource, customerRepository);
     customerUsecase = new CustomerUsecaseImpl(customerRepository, addressUsecase, addressRepository, hikariDataSource);
+
+
+
 
     // Medicine Information
     MedicineInformationRepository medicineInformationRepository = new MedicineInformationRepositoryImpl();
@@ -37,7 +40,7 @@ public class DependencyContainer {
 
     // OrderMedicine
     OrderMedicineRepository orderMedicineRepository = new OrderMedicineRepositoryImpl();
-    OrderMedicineUsecase orderMedicineUsecase = new OrderMedicineUsecaseImpl(hikariDataSource, orderMedicineRepository, medicineRepository);
+    OrderMedicineUsecase orderMedicineUsecase = new OrderMedicineUsecaseImpl(orderMedicineRepository, medicineRepository);
     // Order
     OrderRepository orderRepository = new OrderRepositoryImpl();
     orderUsecase = new OrderUsecaseImpl(customerRepository, orderMedicineUsecase, orderRepository, hikariDataSource);

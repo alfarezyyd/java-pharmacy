@@ -32,17 +32,13 @@ public class OrderController extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String customerId = req.getParameter("customer-id");
     LinkedList<OrderResponse> allOrderByCustomerId = new LinkedList<>();
-    if (customerId == null) {
-      clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must not null");
-    } else {
-      try {
-        Long customerIdLong = Long.valueOf(customerId);
-        allOrderByCustomerId = orderUsecase.getAllOrderByCustomerId(serverError, customerIdLong);
-      } catch (NumberFormatException e) {
-        clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must number");
-      }
+    String customerId = req.getParameter("customer-id");
+    try {
+      Long customerIdLong = Long.valueOf(customerId);
+      allOrderByCustomerId = orderUsecase.getAllOrderByCustomerId(serverError, customerIdLong);
+    } catch (NumberFormatException e) {
+      clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must number");
     }
     if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
       return;
@@ -68,6 +64,9 @@ public class OrderController extends HttpServlet {
     ServerError serverError = new ServerError();
     OrderUpdateRequest orderUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderUpdateRequest.class);
     orderUsecase.updateOrder(serverError, clientError, orderUpdateRequest);
+    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+      return;
+    }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 
@@ -76,11 +75,13 @@ public class OrderController extends HttpServlet {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
     String orderId = req.getParameter("order-id");
+    String customerId = req.getParameter("customer-id");
     try {
       Long orderIdLong = Long.parseLong(orderId);
-      orderUsecase.deleteOrder(serverError, clientError, orderIdLong);
+      Long customerIdLong = Long.parseLong(customerId);
+      orderUsecase.deleteOrder(serverError, clientError, orderIdLong, customerIdLong);
     } catch (NumberFormatException e) {
-      throw new RuntimeException(e);
+      clientError.addActionError("delete order", "invalid! query param {order-id} and {customer-id} must number");
     }
     if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
       return;

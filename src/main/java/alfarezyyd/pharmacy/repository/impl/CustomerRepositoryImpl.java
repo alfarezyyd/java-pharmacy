@@ -18,7 +18,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, customerId);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
+      boolean resultSetNext = resultSet.next();
+      resultSet.close();
+      if (resultSetNext) {
         return true;
       } else {
         throw new ActionError("check if customer exists", "customer not found");
@@ -56,9 +58,10 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
   @Override
   public Long createCustomer(Connection connection, Customer customer) throws DatabaseError, ActionError {
-    String sqlSyntax = "INSERT INTO customers(full_name, date_of_birth, gender, phone) VALUES (?,?,?,?)";
+    String sqlSyntax = """
+        INSERT INTO customers(full_name, date_of_birth, gender, phone) VALUES (?,?,?,?)""";
+    long customerId;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
-      long customerId;
       preparedStatement.setString(1, customer.getFullName());
       preparedStatement.setDate(2, Date.valueOf(customer.getDateOfBirth()));
       preparedStatement.setString(3, customer.getGender().toString());
@@ -70,10 +73,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       } else {
         throw new ActionError("create customer", "create customer failed");
       }
-      return customerId;
+      resultSet.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
+    return customerId;
   }
 
   @Override

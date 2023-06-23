@@ -1,16 +1,22 @@
 package alfarezyyd.pharmacy.helper;
 
+import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.model.entity.*;
+import alfarezyyd.pharmacy.model.web.orderMedicine.OrderMedicineRequest;
 import alfarezyyd.pharmacy.model.web.response.*;
+import alfarezyyd.pharmacy.util.SearchUtil;
+
+import java.util.LinkedList;
 
 public class Model {
-  public static CustomerResponse convertToCustomerResponse(Customer customer) {
+  public static CustomerResponse convertToCustomerResponse(Customer customer, LinkedList<AddressResponse> addressResponses) {
     CustomerResponse customerResponse = new CustomerResponse();
     customerResponse.setId(customer.getId());
     customerResponse.setFullName(customer.getFullName());
     customerResponse.setDateOfBirth(customer.getDateOfBirth().toString());
     customerResponse.setGender(customer.getGender());
     customerResponse.setPhone(customer.getPhone());
+    customerResponse.setAddressResponses(addressResponses);
     customerResponse.setCreatedAt(String.valueOf(customer.getCreatedAt()));
     customerResponse.setUpdatedAt(customer.getUpdatedAt() != null ? customer.getUpdatedAt().toString() : null);
     return customerResponse;
@@ -72,6 +78,16 @@ public class Model {
     return orderResponse;
   }
 
-
-
+  public static LinkedList<Long> countTotalPrice(ClientError clientError, OrderMedicineRequest orderMedicineRequest, LinkedList<Medicine> allMedicine) {
+    LinkedList<Long> allTotalPrice = new LinkedList<>();
+    for (int i = 0; i < orderMedicineRequest.getAllMedicineId().size(); i++) {
+      Medicine medicine = SearchUtil.binarySearch(allMedicine, orderMedicineRequest.getAllMedicineId().get(i));
+      if (medicine == null) {
+        clientError.addActionError("find medicine", "medicine not found");
+        return null;
+      }
+      allTotalPrice.add(medicine.getPrice() * orderMedicineRequest.getAllQuantity().get(i));
+    }
+    return allTotalPrice;
+  }
 }

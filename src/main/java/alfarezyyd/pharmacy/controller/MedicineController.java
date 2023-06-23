@@ -32,9 +32,9 @@ public class MedicineController extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String requestURI = req.getRequestURI();
+    String pathInfo = req.getPathInfo();
     LinkedList<MedicineResponse> allMedicine = new LinkedList<>();
-    if (requestURI.equals("details")) {
+    if (pathInfo != null && pathInfo.equals("/details")) {
       try {
         String medicineId = req.getParameter("medicine-id");
         Long medicineIdLong = Long.valueOf(medicineId);

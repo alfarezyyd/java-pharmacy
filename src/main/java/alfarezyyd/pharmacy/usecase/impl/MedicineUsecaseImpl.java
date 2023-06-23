@@ -63,7 +63,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
         clientError.addActionError("get detail medicine", "medicine not found!");
       }
     } catch (SQLException e) {
-     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return medicineResponse;
   }
@@ -88,7 +88,9 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
       Long idNewMedicine = medicineRepository.createMedicine(connection, medicine);
       medicineInformationUsecase.createMedicineInformation(serverError, clientError, medicineCreateRequest.getMedicineInformationCreateRequest(), idNewMedicine);
     } catch (SQLException e) {
-     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+    } catch (ActionError e) {
+      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 
@@ -97,7 +99,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
     Set<ConstraintViolation<MedicineUpdateRequest>> constraintViolations = ValidationUtil.getValidator().validate(medicineUpdateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<MedicineUpdateRequest> constraintViolation : constraintViolations) {
-                String propertyPath = constraintViolation.getPropertyPath().toString();
+        String propertyPath = constraintViolation.getPropertyPath().toString();
         clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
       return;
@@ -118,7 +120,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
-     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -131,7 +133,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
         medicineRepository.deleteMedicine(connection, medicineId);
       }
     } catch (SQLException e) {
-     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     }

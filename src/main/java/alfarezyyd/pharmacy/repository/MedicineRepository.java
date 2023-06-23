@@ -13,7 +13,7 @@ public interface MedicineRepository {
 
   Boolean checkIfMedicineExists(Connection connection, Long medicineId) throws DatabaseError, ActionError;
 
-  Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError;
+  Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError, ActionError;
 
   void updateMedicine(Connection connection, Medicine medicine) throws DatabaseError;
 

@@ -4,6 +4,7 @@ import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
+import alfarezyyd.pharmacy.helper.Transaction;
 import alfarezyyd.pharmacy.model.entity.*;
 import alfarezyyd.pharmacy.model.web.order.OrderCreateRequest;
 import alfarezyyd.pharmacy.model.web.order.OrderUpdateRequest;
@@ -66,18 +67,16 @@ public class OrderUsecaseImpl implements OrderUsecase {
       Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, orderCreateRequest.getCustomerId());
       if (isCustomerExists) {
         order.setCustomerId(orderCreateRequest.getCustomerId());
-        order.setTotalAmount(orderCreateRequest.getTotalAmount());
         order.setPaymentMethod(PaymentMethod.fromValue(orderCreateRequest.getPaymentMethod()));
         order.setPaymentStatus(PaymentStatus.fromValue(orderCreateRequest.getPaymentStatus()));
         order.setOrderStatus(OrderStatus.fromValue(orderCreateRequest.getOrderStatus()));
         order.setShippingMethod(ShippingMethod.fromValue(orderCreateRequest.getShippingMethod()));
         order.setTrackingNumber(orderCreateRequest.getTrackingNumber());
         Long orderId = orderRepository.createOrder(connection, order);
-        orderMedicineUsecase.createOrderMedicine(clientError, serverError, orderId, orderCreateRequest.getOrderMedicine());
-        if (serverError.hasErrors() || clientError.hasErrors()) {
-          connection.rollback();
-        } else {
-          connection.commit();
+        Float totalAmount = orderMedicineUsecase.createOrderMedicine(connection, clientError, serverError, orderId, orderCreateRequest.getOrderMedicine());
+        Transaction.commitOrRollback(serverError, clientError, connection);
+        if (totalAmount != 0F) {
+          updateTotalAmount(serverError, totalAmount, orderId);
         }
       }
     } catch (SQLException e) {
@@ -98,12 +97,12 @@ public class OrderUsecaseImpl implements OrderUsecase {
     }
 
     try (Connection connection = hikariDataSource.getConnection()) {
+      connection.setAutoCommit(false);
       Order order = new Order();
-      Boolean checkOrderIfExists = orderRepository.checkOrderIfExists(connection, orderUpdateRequest.getId());
-      if (checkOrderIfExists) {
+      Boolean isOrderExists = orderRepository.checkOrderIfExists(connection, orderUpdateRequest.getId(), orderUpdateRequest.getCustomerId());
+      if (isOrderExists) {
         order.setId(orderUpdateRequest.getId());
         order.setCustomerId(orderUpdateRequest.getCustomerId());
-        order.setTotalAmount(orderUpdateRequest.getTotalAmount());
         order.setPaymentMethod(PaymentMethod.fromValue(orderUpdateRequest.getPaymentMethod()));
         order.setPaymentStatus(PaymentStatus.fromValue(orderUpdateRequest.getPaymentStatus()));
         order.setOrderStatus(OrderStatus.fromValue(orderUpdateRequest.getOrderStatus()));
@@ -111,6 +110,11 @@ public class OrderUsecaseImpl implements OrderUsecase {
         order.setTrackingNumber(orderUpdateRequest.getTrackingNumber());
         order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         orderRepository.updateOrder(connection, order);
+        Float totalAmount = orderMedicineUsecase.updateOrderMedicine(connection, clientError, serverError, order.getId(), orderUpdateRequest.getOrderMedicine());
+        Transaction.commitOrRollback(serverError, clientError, connection);
+        if (totalAmount != 0F) {
+          updateTotalAmount(serverError, totalAmount, order.getId());
+        }
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
@@ -120,15 +124,25 @@ public class OrderUsecaseImpl implements OrderUsecase {
   }
 
   @Override
-  public void deleteOrder(ServerError serverError, ClientError clientError, Long orderId) {
+  public void deleteOrder(ServerError serverError, ClientError clientError, Long orderId, Long customerId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      if (orderRepository.checkOrderIfExists(connection, orderId)) {
-        orderRepository.deleteOrder(connection, orderId);
+      if (orderRepository.checkOrderIfExists(connection, orderId, customerId)) {
+        orderMedicineUsecase.deleteOrderMedicine(connection, serverError, orderId);
+        orderRepository.deleteOrder(connection, orderId, customerId);
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
+    }
+  }
+
+  @Override
+  public void updateTotalAmount(ServerError serverError, Float totalAmount, Long orderId) {
+    try (Connection connection = hikariDataSource.getConnection()) {
+      orderRepository.updateTotalAmount(connection, totalAmount, orderId);
+    } catch (SQLException e) {
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

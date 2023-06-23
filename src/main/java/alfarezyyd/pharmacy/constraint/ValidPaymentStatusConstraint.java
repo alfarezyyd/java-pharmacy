@@ -1,6 +1,5 @@
 package alfarezyyd.pharmacy.constraint;
 
-import alfarezyyd.pharmacy.validator.ValidDosageFormValidator;
 import alfarezyyd.pharmacy.validator.ValidPaymentStatusValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

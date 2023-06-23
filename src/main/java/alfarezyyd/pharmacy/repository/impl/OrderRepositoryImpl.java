@@ -41,19 +41,18 @@ public class OrderRepositoryImpl implements OrderRepository {
   @Override
   public Long createOrder(Connection connection, Order order) throws DatabaseError, ActionError {
     String sqlSyntax = """
-        INSERT INTO orders(customer_id, total_amount, payment_method, payment_status, order_status, shipping_method, tracking_number)
-        VALUES(?,?,?,?,?,?,?)
+        INSERT INTO orders(customer_id, payment_method, payment_status, order_status, shipping_method, tracking_number)
+        VALUES(?,?,?,?,?,?)
         """;
     try {
       long orderId;
       PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setLong(1, order.getCustomerId());
-      preparedStatement.setFloat(2, order.getTotalAmount());
-      preparedStatement.setString(3, order.getPaymentMethod().getValue());
-      preparedStatement.setString(4, order.getPaymentStatus().getValue());
-      preparedStatement.setString(5, order.getOrderStatus().getValue());
-      preparedStatement.setString(6, order.getShippingMethod().getValue());
-      preparedStatement.setString(7, order.getTrackingNumber());
+      preparedStatement.setString(2, order.getPaymentMethod().getValue());
+      preparedStatement.setString(3, order.getPaymentStatus().getValue());
+      preparedStatement.setString(4, order.getOrderStatus().getValue());
+      preparedStatement.setString(5, order.getShippingMethod().getValue());
+      preparedStatement.setString(6, order.getTrackingNumber());
       preparedStatement.executeUpdate();
       ResultSet resultSet = preparedStatement.getGeneratedKeys();
       if (resultSet.next()) {
@@ -68,12 +67,13 @@ public class OrderRepositoryImpl implements OrderRepository {
   }
 
   @Override
-  public Boolean checkOrderIfExists(Connection connection, Long orderId) throws DatabaseError, ActionError {
+  public Boolean checkOrderIfExists(Connection connection, Long orderId, Long customerId) throws DatabaseError, ActionError {
     String sqlSyntax = """
-            SELECT * FROM orders WHERE id = ?;
+            SELECT * FROM orders WHERE id = ? AND customer_id=?;
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, orderId);
+      preparedStatement.setLong(2, customerId);
       ResultSet resultSet = preparedStatement.executeQuery();
       if (resultSet.next()) {
         return true;
@@ -88,17 +88,16 @@ public class OrderRepositoryImpl implements OrderRepository {
   @Override
   public void updateOrder(Connection connection, Order order) throws DatabaseError {
     String sqlSyntax = """
-        UPDATE orders SET total_amount=?, payment_method = ?, payment_status=?, order_status=?, shipping_method=?, tracking_number=?, updated_at=? WHERE id=?
+        UPDATE orders SET  payment_method = ?, payment_status=?, order_status=?, shipping_method=?, tracking_number=?, updated_at=? WHERE id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setFloat(1, order.getTotalAmount());
-      preparedStatement.setString(2, order.getPaymentMethod().getValue());
-      preparedStatement.setString(3, order.getPaymentStatus().getValue());
-      preparedStatement.setString(4, order.getOrderStatus().getValue());
-      preparedStatement.setString(5, order.getShippingMethod().getValue());
-      preparedStatement.setString(6, order.getTrackingNumber());
-      preparedStatement.setTimestamp(7, order.getUpdatedAt());
-      preparedStatement.setLong(8, order.getId());
+      preparedStatement.setString(1, order.getPaymentMethod().getValue());
+      preparedStatement.setString(2, order.getPaymentStatus().getValue());
+      preparedStatement.setString(3, order.getOrderStatus().getValue());
+      preparedStatement.setString(4, order.getShippingMethod().getValue());
+      preparedStatement.setString(5, order.getTrackingNumber());
+      preparedStatement.setTimestamp(6, order.getUpdatedAt());
+      preparedStatement.setLong(7, order.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
@@ -107,12 +106,27 @@ public class OrderRepositoryImpl implements OrderRepository {
 
 
   @Override
-  public void deleteOrder(Connection connection, Long orderId) throws DatabaseError {
+  public void deleteOrder(Connection connection, Long orderId, Long customerId) throws DatabaseError {
     String sqlSyntax = """
-        DELETE FROM orders WHERE id=?
+        DELETE FROM orders WHERE id=? AND customer_id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, orderId);
+      preparedStatement.setLong(2, customerId);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+    }
+  }
+
+  @Override
+  public void updateTotalAmount(Connection connection, Float totalAmount, Long orderId) throws DatabaseError {
+    String sqlSyntax = """
+        UPDATE orders SET total_amount=? WHERE id=?
+        """;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+      preparedStatement.setFloat(1, totalAmount);
+      preparedStatement.setLong(2, orderId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());

@@ -3,6 +3,7 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
+import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.DosageForm;
 import alfarezyyd.pharmacy.model.entity.MedicineInformation;
 import alfarezyyd.pharmacy.model.web.medicineInformation.MedicineInformationCreateRequest;
@@ -33,6 +34,7 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
 
   @Override
   public MedicineInformationResponse getMedicineInformationById(ServerError serverError, ClientError clientError, Long medicineInformationId) {
+    MedicineInformationResponse medicineInformationResponse = new MedicineInformationResponse();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<MedicineInformation> allMedicineInformation = medicineInformationRepository.getAllMedicineInformation(connection, medicineInformationId);
       MedicineInformation medicineInformation = SearchUtil.binarySearch(allMedicineInformation, medicineInformationId);
@@ -40,10 +42,11 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
         clientError.addActionError("get medicine information", "failed! medicine information not found");
         return null;
       }
+      medicineInformationResponse = Model.convertToMedicineInformationResponse(medicineInformation);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
-    return null;
+    return medicineInformationResponse;
   }
 
   @Override

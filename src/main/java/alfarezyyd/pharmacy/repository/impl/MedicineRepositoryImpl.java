@@ -42,7 +42,9 @@ public class MedicineRepositoryImpl implements MedicineRepository {
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, medicineId);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
+      boolean resultSetNext = resultSet.next();
+      resultSet.close();
+      if (resultSetNext) {
         return true;
       } else {
         throw new ActionError("check if medicine exists", "medicine not found");
@@ -54,11 +56,11 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   }
 
   @Override
-  public Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError {
+  public Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError, ActionError {
     String sqlSyntax = """
         INSERT INTO medicines(name, brand, price, stock) VALUES(?,?,?,?)
         """;
-    long generatedKeys = 0L;
+    long generatedKeys;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
       preparedStatement.setString(1, medicine.getName());
       preparedStatement.setString(2, medicine.getBrand());
@@ -68,6 +70,8 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       ResultSet resultSet = preparedStatement.getGeneratedKeys();
       if (resultSet.next()) {
         generatedKeys = resultSet.getLong(1);
+      } else {
+        throw new ActionError("create medicine", "create medicine failed");
       }
       resultSet.close();
     } catch (SQLException e) {

@@ -15,5 +15,8 @@ public interface OrderUsecase {
 
   void updateOrder(ServerError serverError, ClientError clientError, OrderUpdateRequest orderUpdateRequest);
 
-  void deleteOrder(ServerError serverError, ClientError clientError, Long orderId);
+
+  void deleteOrder(ServerError serverError, ClientError clientError, Long orderId, Long customerId);
+
+  void updateTotalAmount(ServerError serverError, Float totalAmount, Long orderId);
 }

@@ -12,9 +12,11 @@ public interface OrderRepository {
 
   Long createOrder(Connection connection, Order order) throws DatabaseError, ActionError;
 
-  Boolean checkOrderIfExists(Connection connection, Long orderId) throws DatabaseError, ActionError;
+  Boolean checkOrderIfExists(Connection connection, Long orderId, Long customerId) throws DatabaseError, ActionError;
 
   void updateOrder(Connection connection, Order order) throws DatabaseError;
 
-  void deleteOrder(Connection connection, Long orderId) throws DatabaseError;
+  void deleteOrder(Connection connection, Long orderId, Long customerId) throws DatabaseError;
+
+  void updateTotalAmount(Connection connection, Float totalAmount, Long orderId) throws DatabaseError;
 }

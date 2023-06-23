@@ -7,7 +7,6 @@ import alfarezyyd.pharmacy.repository.OrderMedicineRepository;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 public class OrderMedicineRepositoryImpl implements OrderMedicineRepository {
   @Override
@@ -16,7 +15,7 @@ public class OrderMedicineRepositoryImpl implements OrderMedicineRepository {
         INSERT INTO orders_medicines(medicine_id,order_id, quantity, total_price) VALUES(?,?,?,?)
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      for (int i = 0; i < orderMedicine.getAllMedicineId().size() - 1; i++) {
+      for (int i = 0; i < orderMedicine.getAllMedicineId().size(); i++) {
         preparedStatement.clearParameters();
         preparedStatement.setLong(1, orderMedicine.getAllMedicineId().get(i));
         preparedStatement.setLong(2, orderMedicine.getOrderId());
@@ -25,6 +24,19 @@ public class OrderMedicineRepositoryImpl implements OrderMedicineRepository {
         preparedStatement.addBatch();
       }
       preparedStatement.executeBatch();
+    } catch (SQLException e) {
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+    }
+  }
+
+  @Override
+  public void deleteOrderMedicine(Connection connection, Long orderId) throws DatabaseError {
+    String sqlSyntax = """
+        DELETE FROM orders_medicines WHERE order_id=?
+        """;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+      preparedStatement.setLong(1, orderId);
+      preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }

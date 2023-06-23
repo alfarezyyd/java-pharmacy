@@ -8,11 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.LinkedList;
 
 @CheckSizeOfMultipleValueConstraint
-public class OrderMedicineUpdateRequest {
-
-  @NotNull
-  @JsonProperty("order_id")
-  private Long orderId;
+public class OrderMedicineRequest {
   @NotNull
   @JsonProperty("all_medicine_id")
   @ValidMedicineIdConstraint
@@ -20,12 +16,6 @@ public class OrderMedicineUpdateRequest {
   @NotNull
   @JsonProperty("all_quantity")
   private LinkedList<Long> allQuantity;
-  @NotNull
-  private LinkedList<Long> allTotalPrice;
-
-  public Long getOrderId() {
-    return orderId;
-  }
 
   public LinkedList<Long> getAllMedicineId() {
     return allMedicineId;
@@ -35,7 +25,4 @@ public class OrderMedicineUpdateRequest {
     return allQuantity;
   }
 
-  public LinkedList<Long> getAllTotalPrice() {
-    return allTotalPrice;
-  }
 }

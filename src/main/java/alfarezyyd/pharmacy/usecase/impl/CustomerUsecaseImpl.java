@@ -3,12 +3,12 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
-import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.model.entity.Customer;
 import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.Gender;
 import alfarezyyd.pharmacy.model.web.customer.CustomerCreateRequest;
 import alfarezyyd.pharmacy.model.web.customer.CustomerUpdateRequest;
+import alfarezyyd.pharmacy.model.web.response.AddressResponse;
 import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
 import alfarezyyd.pharmacy.repository.AddressRepository;
 import alfarezyyd.pharmacy.repository.CustomerRepository;
@@ -47,7 +47,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
       for (var customer : allCustomer) {
-        customerResponses.add(Model.convertToCustomerResponse(customer));
+        customerResponses.add(Model.convertToCustomerResponse(customer, null));
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
@@ -65,7 +65,8 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
         clientError.addActionError("find customer", "failed! customer not found!");
         return null;
       }
-      customerResponse = Model.convertToCustomerResponse(customer);
+      LinkedList<AddressResponse> allAddressByCustomerId = addressUsecase.getAllAddressByCustomerId(serverError, clientError, customer.getId());
+      customerResponse = Model.convertToCustomerResponse(customer, allAddressByCustomerId);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
@@ -89,7 +90,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       customer.setGender(Gender.valueOf(customerCreateRequest.getGender()));
       customer.setPhone(customerCreateRequest.getPhone());
       Long customerId = customerRepository.createCustomer(connection, customer);
-      addressUsecase.createAddress(serverError, customerCreateRequest.getAddressCreateRequest(), customerId);
+      addressUsecase.createAddress(serverError, clientError, customerCreateRequest.getAddressCreateRequest(), customerId);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
@@ -130,10 +131,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     try (Connection connection = hikariDataSource.getConnection()) {
       Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, customerId);
       if (isCustomerExists) {
-        LinkedList<Address> allAddressByCustomerId = addressRepository.getAllAddressByCustomerId(connection, customerId);
-        for (Address address : allAddressByCustomerId) {
-          addressRepository.deleteCustomerAddress(connection, address.getId(), customerId);
-        }
+        addressRepository.deleteAllCustomerAddress(connection, customerId);
         customerRepository.deleteCustomer(connection, customerId);
       }
     } catch (SQLException e) {
