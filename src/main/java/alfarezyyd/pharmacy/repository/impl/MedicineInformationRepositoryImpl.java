@@ -10,19 +10,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
 
 public class MedicineInformationRepositoryImpl implements MedicineInformationRepository {
   @Override
-  public MedicineInformation getMedicineInformationById(Connection connection, Long id) throws ActionError, DatabaseError {
+  public LinkedList<MedicineInformation> getAllMedicineInformation(Connection connection, Long id) throws DatabaseError {
     String sqlSyntax = """
-        SELECT * FROM medicines_information WHERE id=?
+        SELECT * FROM medicines_information 
         """;
-    MedicineInformation medicineInformation;
+    LinkedList<MedicineInformation> allMedicineInformation = new LinkedList<>();
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, id);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
-        medicineInformation = new MedicineInformation();
+      while (resultSet.next()) {
+        MedicineInformation medicineInformation = new MedicineInformation();
         medicineInformation.setId(resultSet.getLong("id"));
         medicineInformation.setDosageForm(DosageForm.fromValue(resultSet.getString("dosage_form")));
         medicineInformation.setStrength(resultSet.getFloat("strength"));
@@ -34,13 +35,30 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
         medicineInformation.setDescription(resultSet.getString("description"));
         medicineInformation.setExpiryDate(resultSet.getDate("expiry_date"));
         medicineInformation.setCountryOfOrigin(resultSet.getString("country_of_origin"));
-      } else {
-        throw new ActionError("find medicine by id", "medicine not found");
+        allMedicineInformation.add(medicineInformation);
       }
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
-    return medicineInformation;
+    return allMedicineInformation;
+  }
+
+  @Override
+  public Boolean checkIfMedicineInformationExists(Connection connection, Long id) throws DatabaseError, ActionError {
+    String sqlSyntax = """
+        SELECT * FROM medicines_information WHERE id=?
+        """;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+      preparedStatement.setLong(1, id);
+      ResultSet resultSet = preparedStatement.executeQuery();
+      if (resultSet.next()) {
+        return true;
+      } else {
+        throw new ActionError("check if medicine information exists", "medicine information not found");
+      }
+    } catch (SQLException e) {
+      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+    }
   }
 
   @Override

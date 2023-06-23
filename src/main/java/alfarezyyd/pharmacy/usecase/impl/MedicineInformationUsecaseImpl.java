@@ -3,7 +3,6 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
-import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.DosageForm;
 import alfarezyyd.pharmacy.model.entity.MedicineInformation;
 import alfarezyyd.pharmacy.model.web.medicineInformation.MedicineInformationCreateRequest;
@@ -11,6 +10,7 @@ import alfarezyyd.pharmacy.model.web.medicineInformation.MedicineInformationUpda
 import alfarezyyd.pharmacy.model.web.response.MedicineInformationResponse;
 import alfarezyyd.pharmacy.repository.MedicineInformationRepository;
 import alfarezyyd.pharmacy.usecase.MedicineInformationUsecase;
+import alfarezyyd.pharmacy.util.SearchUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.validation.ConstraintViolation;
@@ -18,6 +18,7 @@ import jakarta.validation.ConstraintViolation;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.Set;
 
 public class MedicineInformationUsecaseImpl implements MedicineInformationUsecase {
@@ -32,10 +33,12 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
   @Override
   public MedicineInformationResponse getMedicineInformationById(ServerError serverError, ClientError clientError, Long medicineInformationId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      MedicineInformation medicineInformationById = medicineInformationRepository.getMedicineInformationById(connection, medicineInformationId);
-      return Model.convertToMedicineInformationResponse(medicineInformationById);
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
+      LinkedList<MedicineInformation> allMedicineInformation = medicineInformationRepository.getAllMedicineInformation(connection, medicineInformationId);
+      MedicineInformation medicineInformation = SearchUtil.binarySearch(allMedicineInformation, medicineInformationId);
+      if (medicineInformation == null){
+        clientError.addActionError("get medicine information", "failed! medicine information not found");
+        return null;
+      }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
     }
@@ -81,8 +84,9 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     }
 
     try (Connection connection = hikariDataSource.getConnection()) {
-      MedicineInformation medicineInformation = medicineInformationRepository.getMedicineInformationById(connection, medicineId);
-      if (medicineInformation != null) {
+      Boolean isMedicineInformationExists = medicineInformationRepository.checkIfMedicineInformationExists(connection, medicineId);
+      if (isMedicineInformationExists) {
+        MedicineInformation medicineInformation = new MedicineInformation();
         medicineInformation.setId(medicineId);
         medicineInformation.setDosageForm(DosageForm.fromValue(medicineInformationUpdateRequest.getDosageForm()));
         medicineInformation.setStrength(medicineInformationUpdateRequest.getStrength());
@@ -106,8 +110,8 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
   @Override
   public void deleteMedicineInformation(ServerError serverError, ClientError clientError, Long medicineInformationId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      MedicineInformation medicineInformation = medicineInformationRepository.getMedicineInformationById(connection, medicineInformationId);
-      if (medicineInformation != null) {
+      Boolean isMedicineInformationExists = medicineInformationRepository.checkIfMedicineInformationExists(connection, medicineInformationId);
+      if (isMedicineInformationExists != null) {
         medicineInformationRepository.deleteMedicineInformation(connection, medicineInformationId);
       }
     } catch (ActionError e) {

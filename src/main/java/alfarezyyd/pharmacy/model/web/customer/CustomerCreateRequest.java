@@ -1,6 +1,7 @@
 package alfarezyyd.pharmacy.model.web.customer;
 
 import alfarezyyd.pharmacy.constraint.ValidDateConstraint;
+import alfarezyyd.pharmacy.constraint.ValidGenderConstraint;
 import alfarezyyd.pharmacy.model.web.address.AddressCreateRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ public class CustomerCreateRequest {
   @ValidDateConstraint
   private String dateOfBirth;
   @NotBlank
+  @ValidGenderConstraint
   private String gender;
   @NotBlank
   private String phone;

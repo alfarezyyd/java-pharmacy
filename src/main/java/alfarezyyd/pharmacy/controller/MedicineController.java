@@ -33,9 +33,15 @@ public class MedicineController extends HttpServlet {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
     String requestURI = req.getRequestURI();
-    LinkedList<MedicineResponse> allMedicine;
-    if (requestURI.equals("deleted")) {
-      allMedicine = medicineUsecase.getAllDeletedMedicine(serverError, clientError);
+    LinkedList<MedicineResponse> allMedicine = new LinkedList<>();
+    if (requestURI.equals("details")) {
+      try {
+        String medicineId = req.getParameter("medicine-id");
+        Long medicineIdLong = Long.valueOf(medicineId);
+        allMedicine.add(medicineUsecase.getDetailMedicine(serverError, clientError, medicineIdLong));
+      } catch (NumberFormatException e) {
+        clientError.addActionError("get detail customer!", "failed! query param {medicine-id} not a number");
+      }
     } else {
       allMedicine = medicineUsecase.getAllMedicine(serverError, clientError);
     }

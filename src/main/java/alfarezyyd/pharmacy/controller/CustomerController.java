@@ -35,7 +35,7 @@ public class CustomerController extends HttpServlet {
     ServerError serverError = new ServerError();
     String pathInfo = req.getPathInfo();
     LinkedList<CustomerResponse> allCustomer = new LinkedList<>();
-    if (pathInfo.equals("/details")) {
+    if (pathInfo != null && pathInfo.equals("/details")) {
       try {
         String customerId = req.getParameter("customer-id");
         Long customerIdLong = Long.valueOf(customerId);
@@ -86,9 +86,12 @@ public class CustomerController extends HttpServlet {
     try {
       Long customerIdLong = Long.parseLong(customerId);
       customerUsecase.deleteCustomer(serverError, clientError, customerIdLong);
-      ResponseWriter.writeToResponseBodySuccess(resp, null);
     } catch (NumberFormatException e) {
-      throw new RuntimeException(e);
+      clientError.addActionError("delete customer!", "failed! query param {customer-id} not a number");
     }
+    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+      return;
+    }
+    ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 }

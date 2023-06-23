@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.model.web.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class MedicineResponse {
@@ -14,6 +15,8 @@ public class MedicineResponse {
   private String updatedAt;
   @JsonProperty("deleted_at")
   private String deletedAt;
+
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonProperty("medicine_information")
   private MedicineInformationResponse medicineInformationResponse;
 

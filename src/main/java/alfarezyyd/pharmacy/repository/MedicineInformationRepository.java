@@ -5,9 +5,12 @@ import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.MedicineInformation;
 
 import java.sql.Connection;
+import java.util.LinkedList;
 
 public interface MedicineInformationRepository {
-  MedicineInformation getMedicineInformationById(Connection connection, Long id) throws ActionError, DatabaseError;
+  LinkedList<MedicineInformation> getAllMedicineInformation(Connection connection, Long id) throws DatabaseError;
+
+  Boolean checkIfMedicineInformationExists(Connection connection, Long id) throws DatabaseError, ActionError;
 
   void createMedicineInformation(Connection connection, MedicineInformation medicineInformation) throws DatabaseError;
 

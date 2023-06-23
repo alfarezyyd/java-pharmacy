@@ -14,7 +14,7 @@ import alfarezyyd.pharmacy.repository.AddressRepository;
 import alfarezyyd.pharmacy.repository.CustomerRepository;
 import alfarezyyd.pharmacy.usecase.AddressUsecase;
 import alfarezyyd.pharmacy.usecase.CustomerUsecase;
-import alfarezyyd.pharmacy.util.SearchingUtil;
+import alfarezyyd.pharmacy.util.SearchUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.validation.ConstraintViolation;
@@ -59,7 +59,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     CustomerResponse customerResponse = new CustomerResponse();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
-      Customer customer = SearchingUtil.searchOperation(allCustomer, customerId);
+      Customer customer = SearchUtil.binarySearch(allCustomer, customerId);
       if (customer == null) {
         clientError.addActionError("find customer", "failed! customer not found!");
         return null;
@@ -104,12 +104,13 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       }
     }
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isCustomerExists = customerRepository.checkCustomerIfExists(connection, customerUpdateRequest.getId());
+      Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, customerUpdateRequest.getId());
       if (isCustomerExists) {
         Customer customer = new Customer();
+        customer.setId(customerUpdateRequest.getId());
         customer.setFullName(customerUpdateRequest.getFullName());
         customer.setDateOfBirth(LocalDate.parse(customerUpdateRequest.getDateOfBirth()));
-        customer.setGender(Gender.valueOf(customerUpdateRequest.getGender()));
+        customer.setGender(Gender.fromValue(customerUpdateRequest.getGender()));
         customer.setPhone(customerUpdateRequest.getPhone());
         customer.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         customerRepository.updateCustomer(connection, customer);
@@ -124,7 +125,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
   @Override
   public void deleteCustomer(ServerError serverError, ClientError clientError, Long customerId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isCustomerExists = customerRepository.checkCustomerIfExists(connection, customerId);
+      Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, customerId);
       if (isCustomerExists) {
         LinkedList<Address> allAddressByCustomerId = addressRepository.getAllAddressByCustomerId(connection, customerId);
         for (Address address : allAddressByCustomerId) {

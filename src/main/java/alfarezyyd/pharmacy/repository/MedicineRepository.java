@@ -11,14 +11,13 @@ public interface MedicineRepository {
 
   LinkedList<Medicine> getAllMedicine(Connection connection) throws DatabaseError;
 
-  LinkedList<Medicine> getAllDeletedMedicine(Connection connection) throws DatabaseError;
-
-  Medicine getMedicineById(Connection connection, Long medicineId) throws DatabaseError, ActionError;
+  Boolean checkIfMedicineExists(Connection connection, Long medicineId) throws DatabaseError, ActionError;
 
   Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError;
 
   void updateMedicine(Connection connection, Medicine medicine) throws DatabaseError;
-  void softDeleteMedicine(Connection connection, Medicine medicine) throws DatabaseError;
-  void permanentlyDeleteMedicine(Connection connection, Long medicineId) throws DatabaseError;
+
+
+  void deleteMedicine(Connection connection, Long medicineId) throws DatabaseError;
 }
 

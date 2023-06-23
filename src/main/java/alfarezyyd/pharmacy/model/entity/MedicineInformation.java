@@ -2,7 +2,7 @@ package alfarezyyd.pharmacy.model.entity;
 
 import java.sql.Date;
 
-public class MedicineInformation {
+public class MedicineInformation implements Identifiable {
   private Long id;
   private Float strength;
   private String indications;

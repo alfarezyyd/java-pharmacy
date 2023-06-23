@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 public class CustomerRepositoryImpl implements CustomerRepository {
   @Override
-  public Boolean checkCustomerIfExists(Connection connection, Long customerId) throws DatabaseError, ActionError {
+  public Boolean checkIfCustomerExists(Connection connection, Long customerId) throws DatabaseError, ActionError {
     String sqlSyntax = """
         SELECT * FROM customers WHERE id = ?
         """;
@@ -22,7 +22,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       if (resultSet.next()) {
         return true;
       } else {
-        throw new ActionError("find customer", "customer not found");
+        throw new ActionError("check if customer exists", "customer not found");
       }
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
@@ -32,7 +32,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
   @Override
   public LinkedList<Customer> getAllCustomer(Connection connection) throws DatabaseError {
     String sqlSyntax = """
-         SELECT * FROM customers WHERE deleted_at IS NULL;
+         SELECT * FROM customers;
         """;
     LinkedList<Customer> allCustomer = new LinkedList<>();
     try (Statement statement = connection.createStatement();
@@ -43,10 +43,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         customer.setFullName(resultSet.getString("full_name"));
         customer.setDateOfBirth(resultSet.getDate("date_of_birth").toLocalDate());
         customer.setPhone(resultSet.getString("phone"));
-        customer.setGender(Gender.valueOf(resultSet.getString("gender")));
+        customer.setGender(Gender.fromValue(resultSet.getString("gender")));
         customer.setCreatedAt(resultSet.getTimestamp("created_at"));
         customer.setUpdatedAt(resultSet.getTimestamp("updated_at"));
-        customer.setDeletedAt(resultSet.getTimestamp("deleted_at"));
         allCustomer.add(customer);
       }
     } catch (SQLException e) {

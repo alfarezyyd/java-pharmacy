@@ -46,7 +46,7 @@ public class OrderUsecaseImpl implements OrderUsecase {
   public void createOrder(ServerError serverError, ClientError clientError, OrderCreateRequest orderCreateRequest) {
     try (Connection connection = hikariDataSource.getConnection()) {
       Order order = new Order();
-      Boolean isCustomerExists = customerRepository.checkCustomerIfExists(connection, orderCreateRequest.getCustomerId());
+      Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, orderCreateRequest.getCustomerId());
       if (isCustomerExists) {
         order.setCustomerId(orderCreateRequest.getCustomerId());
         order.setTotalAmount(orderCreateRequest.getTotalAmount());

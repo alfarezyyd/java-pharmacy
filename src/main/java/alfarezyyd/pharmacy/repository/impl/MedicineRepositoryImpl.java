@@ -36,55 +36,22 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   }
 
   @Override
-  public LinkedList<Medicine> getAllDeletedMedicine(Connection connection) throws DatabaseError {
-    String sqlSyntax = """
-        SELECT * FROM medicines WHERE deleted_at IS NOT NULL
-        """;
-    LinkedList<Medicine> allMedicine = new LinkedList<>();
-    try (Statement statement = connection.createStatement();
-         ResultSet resultSet = statement.executeQuery(sqlSyntax)) {
-      while (resultSet.next()) {
-        Medicine medicine = new Medicine();
-        medicine.setId(resultSet.getLong("id"));
-        medicine.setName(resultSet.getString("name"));
-        medicine.setBrand(resultSet.getString("brand"));
-        medicine.setPrice(resultSet.getInt("price"));
-        allMedicine.add(medicine);
-      }
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
-    }
-
-    return allMedicine;
-  }
-
-  @Override
-  public Medicine getMedicineById(Connection connection, Long medicineId) throws DatabaseError, ActionError {
+  public Boolean checkIfMedicineExists(Connection connection, Long medicineId) throws DatabaseError, ActionError {
     String sqlSyntax = """
         SELECT * FROM medicines WHERE id = ?
         """;
-    Medicine medicine;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, medicineId);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
-        medicine = new Medicine();
-        medicine.setId(resultSet.getLong("id"));
-        medicine.setName(resultSet.getString("name"));
-        medicine.setBrand(resultSet.getString("brand"));
-        medicine.setPrice(resultSet.getInt("price"));
-        medicine.setStock(resultSet.getInt("stock"));
-        medicine.setCreatedAt(resultSet.getTimestamp("created_at"));
-        medicine.setUpdatedAt(resultSet.getTimestamp("updated_at"));
-        medicine.setDeletedAt(resultSet.getTimestamp("deleted_at"));
-      } else {
-        throw new ActionError("find medicine", "medicine not found");
+      if (resultSet.next()){
+        return true;
+      }else{
+        throw new ActionError("check if medicine exists", "medicine not found");
       }
-      resultSet.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode());
     }
-    return medicine;
+
   }
 
   @Override
@@ -129,21 +96,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   }
 
   @Override
-  public void softDeleteMedicine(Connection connection, Medicine medicine) throws DatabaseError {
-    String sqlSyntax = """
-        UPDATE medicines SET deleted_at=? WHERE id=?
-        """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setTimestamp(1, medicine.getDeletedAt());
-      preparedStatement.setLong(2, medicine.getId());
-      preparedStatement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
-    }
-  }
-
-  @Override
-  public void permanentlyDeleteMedicine(Connection connection, Long medicineId) throws DatabaseError {
+  public void deleteMedicine(Connection connection, Long medicineId) throws DatabaseError {
     String sqlSyntax = """
         DELETE FROM medicines WHERE id=?
         """;

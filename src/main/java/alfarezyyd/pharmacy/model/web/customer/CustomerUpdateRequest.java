@@ -1,12 +1,14 @@
 package alfarezyyd.pharmacy.model.web.customer;
 
 import alfarezyyd.pharmacy.constraint.ValidDateConstraint;
+import alfarezyyd.pharmacy.constraint.ValidGenderConstraint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class CustomerUpdateRequest {
-  @NotBlank
+  @NotNull
   private Long id;
   @JsonProperty("full_name")
   @NotBlank
@@ -17,7 +19,7 @@ public class CustomerUpdateRequest {
   @ValidDateConstraint
   private String dateOfBirth;
   @NotBlank
-
+  @ValidGenderConstraint
   private String gender;
   @NotBlank
   private String phone;

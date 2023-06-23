@@ -11,7 +11,7 @@ import java.util.LinkedList;
 public interface MedicineUsecase {
   LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError);
 
-  LinkedList<MedicineResponse> getAllDeletedMedicine(ServerError serverError, ClientError clientError);
+  MedicineResponse getDetailMedicine(ServerError serverError, ClientError clientError, Long medicineId);
 
   void createMedicine(ServerError serverError, ClientError clientError, MedicineCreateRequest medicineCreateRequest);
 
