@@ -32,7 +32,7 @@ public class AddressUsecaseImpl implements AddressUsecase {
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return new AddressResponse();
   }
@@ -51,7 +51,7 @@ public class AddressUsecaseImpl implements AddressUsecase {
       address.setDescription(addressCreateRequest.getDescription());
       addressRepository.createAddress(hikariDataSource.getConnection(), address);
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -73,7 +73,7 @@ public class AddressUsecaseImpl implements AddressUsecase {
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

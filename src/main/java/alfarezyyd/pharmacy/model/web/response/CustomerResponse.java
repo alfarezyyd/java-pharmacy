@@ -18,8 +18,6 @@ public class CustomerResponse {
   @JsonProperty("updated_at")
 
   private String updatedAt;
-  @JsonProperty("deleted_at")
-  private String deletedAt;
 
   public Long getId() {
     return id;
@@ -49,9 +47,6 @@ public class CustomerResponse {
     return updatedAt;
   }
 
-  public String getDeletedAt() {
-    return deletedAt;
-  }
 
   public void setId(Long id) {
     this.id = id;
@@ -82,7 +77,4 @@ public class CustomerResponse {
     this.updatedAt = updatedAt;
   }
 
-  public void setDeletedAt(String deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 }

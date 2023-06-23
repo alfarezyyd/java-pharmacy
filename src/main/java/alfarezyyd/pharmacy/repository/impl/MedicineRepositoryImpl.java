@@ -12,7 +12,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   @Override
   public LinkedList<Medicine> getAllMedicine(Connection connection) throws DatabaseError {
     String sqlSyntax = """
-        SELECT * FROM medicines WHERE deleted_at IS NULL
+        SELECT * FROM medicines
         """;
     LinkedList<Medicine> allMedicine = new LinkedList<>();
     try (Statement statement = connection.createStatement();
@@ -26,11 +26,10 @@ public class MedicineRepositoryImpl implements MedicineRepository {
         medicine.setStock(resultSet.getInt("stock"));
         medicine.setCreatedAt(resultSet.getTimestamp("created_at"));
         medicine.setUpdatedAt(resultSet.getTimestamp("updated_at"));
-        medicine.setDeletedAt(resultSet.getTimestamp("deleted_at"));
         allMedicine.add(medicine);
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return allMedicine;
   }
@@ -43,13 +42,13 @@ public class MedicineRepositoryImpl implements MedicineRepository {
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, medicineId);
       ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()){
+      if (resultSet.next()) {
         return true;
-      }else{
+      } else {
         throw new ActionError("check if medicine exists", "medicine not found");
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
 
   }
@@ -72,7 +71,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       }
       resultSet.close();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return generatedKeys;
   }
@@ -87,11 +86,11 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       preparedStatement.setString(2, medicine.getBrand());
       preparedStatement.setInt(3, medicine.getPrice());
       preparedStatement.setInt(4, medicine.getStock());
-      preparedStatement.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
+      preparedStatement.setTimestamp(5, medicine.getUpdatedAt());
       preparedStatement.setLong(6, medicine.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -104,7 +103,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       preparedStatement.setLong(1, medicineId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

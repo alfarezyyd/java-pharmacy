@@ -4,7 +4,9 @@ import alfarezyyd.pharmacy.constraint.ValidOrderStatusConstraint;
 import alfarezyyd.pharmacy.constraint.ValidPaymentMethodConstraint;
 import alfarezyyd.pharmacy.constraint.ValidPaymentStatusConstraint;
 import alfarezyyd.pharmacy.constraint.ValidShippingMethodConstraint;
+import alfarezyyd.pharmacy.model.web.orderMedicine.OrderMedicineCreateRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -34,7 +36,9 @@ public class OrderCreateRequest {
   @JsonProperty("tracking_number")
   @NotBlank
   private String trackingNumber;
-
+  @JsonProperty("order_medicine")
+  @Valid
+  private OrderMedicineCreateRequest orderMedicine;
   public Long getCustomerId() {
     return customerId;
   }
@@ -61,5 +65,9 @@ public class OrderCreateRequest {
 
   public String getTrackingNumber() {
     return trackingNumber;
+  }
+
+  public OrderMedicineCreateRequest getOrderMedicine  () {
+    return orderMedicine;
   }
 }

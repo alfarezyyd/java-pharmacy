@@ -11,7 +11,6 @@ public class Medicine implements Identifiable {
   private Integer stock;
   private Timestamp createdAt;
   private Timestamp updatedAt;
-  private Timestamp deletedAt;
 
   public Long getId() {
     return id;
@@ -71,13 +70,6 @@ public class Medicine implements Identifiable {
     this.updatedAt = updatedAt;
   }
 
-  public Timestamp getDeletedAt() {
-    return deletedAt;
-  }
-
-  public void setDeletedAt(Timestamp deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -92,8 +84,7 @@ public class Medicine implements Identifiable {
     if (!price.equals(medicine.price)) return false;
     if (!stock.equals(medicine.stock)) return false;
     if (!createdAt.equals(medicine.createdAt)) return false;
-    if (!Objects.equals(updatedAt, medicine.updatedAt)) return false;
-    return Objects.equals(deletedAt, medicine.deletedAt);
+    return Objects.equals(updatedAt, medicine.updatedAt);
   }
 
   @Override
@@ -105,21 +96,6 @@ public class Medicine implements Identifiable {
     result = 31 * result + stock.hashCode();
     result = 31 * result + createdAt.hashCode();
     result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
-    result = 31 * result + (deletedAt != null ? deletedAt.hashCode() : 0);
     return result;
-  }
-
-  @Override
-  public String toString() {
-    return "Medicine{" +
-        "id=" + id +
-        ", name='" + name + '\'' +
-        ", brand='" + brand + '\'' +
-        ", price=" + price +
-        ", stock=" + stock +
-        ", createdAt=" + createdAt +
-        ", updatedAt=" + updatedAt +
-        ", deletedAt=" + deletedAt +
-        '}';
   }
 }

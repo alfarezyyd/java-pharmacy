@@ -13,8 +13,6 @@ public class MedicineResponse {
   private String createdAt;
   @JsonProperty("updated_at")
   private String updatedAt;
-  @JsonProperty("deleted_at")
-  private String deletedAt;
 
   @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonProperty("medicine_information")
@@ -48,9 +46,6 @@ public class MedicineResponse {
     return updatedAt;
   }
 
-  public String getDeletedAt() {
-    return deletedAt;
-  }
 
   public MedicineInformationResponse getMedicineInformationResponse() {
     return medicineInformationResponse;
@@ -84,9 +79,6 @@ public class MedicineResponse {
     this.updatedAt = updatedAt;
   }
 
-  public void setDeletedAt(String deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 
   public void setMedicineInformationResponse(MedicineInformationResponse medicineInformationResponse) {
     this.medicineInformationResponse = medicineInformationResponse;

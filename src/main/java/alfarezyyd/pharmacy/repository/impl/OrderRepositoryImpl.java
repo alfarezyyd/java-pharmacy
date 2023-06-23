@@ -34,7 +34,7 @@ public class OrderRepositoryImpl implements OrderRepository {
       }
       return allOrderByCustomer;
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -63,7 +63,7 @@ public class OrderRepositoryImpl implements OrderRepository {
         throw new ActionError("create order", "create order failed");
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -81,14 +81,14 @@ public class OrderRepositoryImpl implements OrderRepository {
         throw new ActionError("check order if exists", "failed! order doesn't exists");
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
   @Override
   public void updateOrder(Connection connection, Order order) throws DatabaseError {
     String sqlSyntax = """
-        UPDATE orders SET total_amount=?, payment_method = ?, payment_status=?, order_status=?, shipping_method=?, tracking_number=? WHERE id=?
+        UPDATE orders SET total_amount=?, payment_method = ?, payment_status=?, order_status=?, shipping_method=?, tracking_number=?, updated_at=? WHERE id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setFloat(1, order.getTotalAmount());
@@ -97,10 +97,11 @@ public class OrderRepositoryImpl implements OrderRepository {
       preparedStatement.setString(4, order.getOrderStatus().getValue());
       preparedStatement.setString(5, order.getShippingMethod().getValue());
       preparedStatement.setString(6, order.getTrackingNumber());
-      preparedStatement.setLong(7, order.getId());
+      preparedStatement.setTimestamp(7, order.getUpdatedAt());
+      preparedStatement.setLong(8, order.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -114,7 +115,7 @@ public class OrderRepositoryImpl implements OrderRepository {
       preparedStatement.setLong(1, orderId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

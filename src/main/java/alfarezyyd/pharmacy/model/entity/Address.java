@@ -15,7 +15,6 @@ public class Address implements Identifiable{
   private String description;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-  private LocalDateTime deletedAt;
 
   public Long getId() {
     return id;
@@ -105,13 +104,6 @@ public class Address implements Identifiable{
     this.updatedAt = updatedAt;
   }
 
-  public LocalDateTime getDeletedAt() {
-    return deletedAt;
-  }
-
-  public void setDeletedAt(LocalDateTime deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -121,6 +113,7 @@ public class Address implements Identifiable{
     Address address = (Address) o;
 
     if (!id.equals(address.id)) return false;
+    if (!customerId.equals(address.customerId)) return false;
     if (!street.equals(address.street)) return false;
     if (!city.equals(address.city)) return false;
     if (!state.equals(address.state)) return false;
@@ -129,13 +122,13 @@ public class Address implements Identifiable{
     if (!isDefault.equals(address.isDefault)) return false;
     if (!description.equals(address.description)) return false;
     if (!createdAt.equals(address.createdAt)) return false;
-    if (!Objects.equals(updatedAt, address.updatedAt)) return false;
-    return Objects.equals(deletedAt, address.deletedAt);
+    return Objects.equals(updatedAt, address.updatedAt);
   }
 
   @Override
   public int hashCode() {
     int result = id.hashCode();
+    result = 31 * result + customerId.hashCode();
     result = 31 * result + street.hashCode();
     result = 31 * result + city.hashCode();
     result = 31 * result + state.hashCode();
@@ -145,7 +138,6 @@ public class Address implements Identifiable{
     result = 31 * result + description.hashCode();
     result = 31 * result + createdAt.hashCode();
     result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
-    result = 31 * result + (deletedAt != null ? deletedAt.hashCode() : 0);
     return result;
   }
 
@@ -162,7 +154,6 @@ public class Address implements Identifiable{
         ", description='" + description + '\'' +
         ", createdAt=" + createdAt +
         ", updatedAt=" + updatedAt +
-        ", deletedAt=" + deletedAt +
         '}';
   }
 

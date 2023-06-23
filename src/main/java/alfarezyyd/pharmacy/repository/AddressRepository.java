@@ -5,7 +5,6 @@ import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Address;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public interface AddressRepository {
@@ -16,6 +15,5 @@ public interface AddressRepository {
 
   void updateAddress(Connection connection, Address address) throws DatabaseError;
 
-  void softDeleteCustomerAddress(Connection connection, ArrayList<Long> arrayOfAddressId, Long customerId) throws DatabaseError;
-  void permanentlyDeleteCustomerAddress(Connection connection, Long addressId, Long customerId) throws DatabaseError;
+  void deleteCustomerAddress(Connection connection, Long addressId, Long customerId) throws DatabaseError;
 }

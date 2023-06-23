@@ -11,6 +11,7 @@ import alfarezyyd.pharmacy.model.web.response.MedicineInformationResponse;
 import alfarezyyd.pharmacy.repository.MedicineInformationRepository;
 import alfarezyyd.pharmacy.usecase.MedicineInformationUsecase;
 import alfarezyyd.pharmacy.util.SearchUtil;
+import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.validation.ConstraintViolation;
@@ -35,12 +36,12 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<MedicineInformation> allMedicineInformation = medicineInformationRepository.getAllMedicineInformation(connection, medicineInformationId);
       MedicineInformation medicineInformation = SearchUtil.binarySearch(allMedicineInformation, medicineInformationId);
-      if (medicineInformation == null){
+      if (medicineInformation == null) {
         clientError.addActionError("get medicine information", "failed! medicine information not found");
         return null;
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return null;
   }
@@ -50,7 +51,8 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     Set<ConstraintViolation<MedicineInformationCreateRequest>> constraintViolations = ValidationUtil.getValidator().validate(medicineInformationCreateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<MedicineInformationCreateRequest> constraintViolation : constraintViolations) {
-        clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+        String propertyPath = constraintViolation.getPropertyPath().toString();
+        clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
       return;
     }
@@ -69,7 +71,7 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
       medicineInformation.setCountryOfOrigin(medicineInformationCreateRequest.getCountryOfOrigin());
       medicineInformationRepository.createMedicineInformation(connection, medicineInformation);
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -78,7 +80,8 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     Set<ConstraintViolation<MedicineInformationUpdateRequest>> constraintViolations = ValidationUtil.getValidator().validate(medicineInformationUpdateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<MedicineInformationUpdateRequest> constraintViolation : constraintViolations) {
-        clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+        String propertyPath = constraintViolation.getPropertyPath().toString();
+        clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
       return;
     }
@@ -103,7 +106,7 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -117,7 +120,7 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

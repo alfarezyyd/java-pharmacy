@@ -5,7 +5,6 @@ import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.Medicine;
-import alfarezyyd.pharmacy.model.entity.MedicineInformation;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineCreateRequest;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.MedicineInformationResponse;
@@ -14,6 +13,7 @@ import alfarezyyd.pharmacy.repository.MedicineRepository;
 import alfarezyyd.pharmacy.usecase.MedicineInformationUsecase;
 import alfarezyyd.pharmacy.usecase.MedicineUsecase;
 import alfarezyyd.pharmacy.util.SearchUtil;
+import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.validation.ConstraintViolation;
@@ -45,7 +45,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
         allMedicineResponse.add(medicineResponse);
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return allMedicineResponse;
   }
@@ -63,7 +63,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
         clientError.addActionError("get detail medicine", "medicine not found!");
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return medicineResponse;
   }
@@ -73,7 +73,8 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
     Set<ConstraintViolation<MedicineCreateRequest>> constraintViolations = ValidationUtil.getValidator().validate(medicineCreateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<MedicineCreateRequest> constraintViolation : constraintViolations) {
-        clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+        String propertyPath = constraintViolation.getPropertyPath().toString();
+        clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
       return;
     }
@@ -87,7 +88,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
       Long idNewMedicine = medicineRepository.createMedicine(connection, medicine);
       medicineInformationUsecase.createMedicineInformation(serverError, clientError, medicineCreateRequest.getMedicineInformationCreateRequest(), idNewMedicine);
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -96,7 +97,8 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
     Set<ConstraintViolation<MedicineUpdateRequest>> constraintViolations = ValidationUtil.getValidator().validate(medicineUpdateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<MedicineUpdateRequest> constraintViolation : constraintViolations) {
-        clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+                String propertyPath = constraintViolation.getPropertyPath().toString();
+        clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
       return;
     }
@@ -109,13 +111,14 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
         medicine.setBrand(medicineUpdateRequest.getBrand());
         medicine.setPrice(medicineUpdateRequest.getPrice());
         medicine.setStock(medicineUpdateRequest.getStock());
+        medicine.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
         medicineRepository.updateMedicine(connection, medicine);
         medicineInformationUsecase.updateMedicineInformation(serverError, clientError, medicineUpdateRequest.getMedicineInformationCreateRequest(), medicine.getId());
       }
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -128,7 +131,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
         medicineRepository.deleteMedicine(connection, medicineId);
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+     serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     }

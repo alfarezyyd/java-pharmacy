@@ -13,7 +13,6 @@ public class Model {
     customerResponse.setPhone(customer.getPhone());
     customerResponse.setCreatedAt(String.valueOf(customer.getCreatedAt()));
     customerResponse.setUpdatedAt(customer.getUpdatedAt() != null ? customer.getUpdatedAt().toString() : null);
-    customerResponse.setDeletedAt(customer.getDeletedAt() != null ? customer.getDeletedAt().toString() : null);
     return customerResponse;
   }
 
@@ -29,7 +28,6 @@ public class Model {
     addressResponse.setDescription(address.getDescription());
     addressResponse.setCreatedAt(address.getCreatedAt().toString());
     addressResponse.setUpdatedAt(address.getUpdatedAt() != null ? address.getUpdatedAt().toString() : null);
-    addressResponse.setDeletedAt(address.getDeletedAt() != null ? address.getDeletedAt().toString() : null);
     return addressResponse;
   }
 
@@ -43,7 +41,6 @@ public class Model {
     medicineResponse.setMedicineInformationResponse(medicineInformationResponse);
     medicineResponse.setCreatedAt(medicine.getCreatedAt().toString());
     medicineResponse.setUpdatedAt(medicine.getUpdatedAt() != null ? medicine.getUpdatedAt().toString() : null);
-    medicineResponse.setDeletedAt(medicine.getDeletedAt() != null ? medicine.getDeletedAt().toString() : null);
     return medicineResponse;
   }
 
@@ -65,7 +62,7 @@ public class Model {
     orderResponse.setId(order.getId());
     orderResponse.setCustomerId(order.getCustomerId());
     orderResponse.setTotalAmount(order.getTotalAmount());
-    orderResponse.setPaymentMethod(order.getPaymentMethod());
+    orderResponse.setPaymentMethod(order.getPaymentMethod().getValue());
     orderResponse.setPaymentStatus(order.getPaymentStatus().getValue());
     orderResponse.setOrderStatus(order.getOrderStatus().getValue());
     orderResponse.setShippingMethod(order.getShippingMethod().getValue());

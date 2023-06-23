@@ -14,7 +14,6 @@ public class Order  implements Identifiable {
   private String trackingNumber;
   private Timestamp createdAt;
   private Timestamp updatedAt;
-  private Timestamp deletedAt;
 
   public Long getId() {
     return id;
@@ -100,13 +99,6 @@ public class Order  implements Identifiable {
     this.updatedAt = updatedAt;
   }
 
-  public Timestamp getDeletedAt() {
-    return deletedAt;
-  }
-
-  public void setDeletedAt(Timestamp deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -124,8 +116,7 @@ public class Order  implements Identifiable {
     if (shippingMethod != order.shippingMethod) return false;
     if (!trackingNumber.equals(order.trackingNumber)) return false;
     if (!createdAt.equals(order.createdAt)) return false;
-    if (!Objects.equals(updatedAt, order.updatedAt)) return false;
-    return Objects.equals(deletedAt, order.deletedAt);
+    return Objects.equals(updatedAt, order.updatedAt);
   }
 
   @Override
@@ -140,7 +131,6 @@ public class Order  implements Identifiable {
     result = 31 * result + trackingNumber.hashCode();
     result = 31 * result + createdAt.hashCode();
     result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
-    result = 31 * result + (deletedAt != null ? deletedAt.hashCode() : 0);
     return result;
   }
 
@@ -157,7 +147,6 @@ public class Order  implements Identifiable {
         ", trackingNumber='" + trackingNumber + '\'' +
         ", createdAt=" + createdAt +
         ", updatedAt=" + updatedAt +
-        ", deletedAt=" + deletedAt +
         '}';
   }
 }

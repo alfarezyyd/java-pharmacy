@@ -6,7 +6,6 @@ import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.repository.AddressRepository;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class AddressRepositoryImpl implements AddressRepository {
@@ -31,13 +30,12 @@ public class AddressRepositoryImpl implements AddressRepository {
         address.setDescription(resultSet.getString("description"));
         address.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
         address.setUpdatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime());
-        address.setDeletedAt(resultSet.getTimestamp("deleted_at").toLocalDateTime());
       }else{
         throw new ActionError("find address", "address not found");
       }
       resultSet.close();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return address;
 
@@ -62,7 +60,7 @@ public class AddressRepositoryImpl implements AddressRepository {
       }
       return allAddress;
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -83,7 +81,7 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.executeUpdate();
       connection.close();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -104,31 +102,12 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setLong(9, address.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
   @Override
-  public void softDeleteCustomerAddress(Connection connection, ArrayList<Long> arrayOfAddressId, Long customerId) throws DatabaseError {
-    String sqlSyntax = """
-        UPDATE addresses SET deleted_at=? WHERE id=? AND customer_id=?
-        """;
-    try {
-      PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
-      for (Long addressId : arrayOfAddressId) {
-        preparedStatement.clearParameters();
-        preparedStatement.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-        preparedStatement.setLong(2, addressId);
-        preparedStatement.setLong(3, customerId);
-      }
-      preparedStatement.executeBatch();
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
-    }
-  }
-
-  @Override
-  public void permanentlyDeleteCustomerAddress(Connection connection, Long addressId, Long customerId) throws DatabaseError {
+  public void deleteCustomerAddress(Connection connection, Long addressId, Long customerId) throws DatabaseError {
     String sqlSyntax = """
         DELETE FROM addresses WHERE id=? AND customer_id=?
         """;
@@ -138,7 +117,7 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setLong(2, customerId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

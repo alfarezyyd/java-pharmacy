@@ -11,5 +11,3 @@ public class JavaPharmacyApplication {
     SpringApplication.run(JavaPharmacyApplication.class);
   }
 }
-
-

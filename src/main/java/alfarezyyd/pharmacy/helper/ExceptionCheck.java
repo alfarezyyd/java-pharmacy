@@ -16,6 +16,7 @@ public class ExceptionCheck {
     } else if (serverError.hasErrors()) {
       ResponseWriter.writeToResponseBodyServerError(resp);
       Map<String, Map<String, LinkedList<?>>> errorsResponse = new HashMap<>();
+      errorsResponse.put("server_errors", serverError.getServerErrors());
       System.out.println(errorsResponse);
       return true;
     }

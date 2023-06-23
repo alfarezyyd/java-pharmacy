@@ -1,18 +1,29 @@
 package alfarezyyd.pharmacy.model.web.response;
 
 import alfarezyyd.pharmacy.model.entity.PaymentMethod;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class OrderResponse {
   private Long id;
+  @JsonProperty("customer_id")
   private Long customerId;
+  @JsonProperty("total_amount")
   private Float totalAmount;
-  private PaymentMethod paymentMethod;
+  @JsonProperty("payment_method")
+  private String paymentMethod;
+  @JsonProperty("payment_status")
   private String paymentStatus;
+  @JsonProperty("order_status")
+
   private String orderStatus;
+  @JsonProperty("shipping_method")
   private String shippingMethod;
+  @JsonProperty("tracking_number")
   private String trackingNumber;
+  @JsonProperty("created_at")
   private String createdAt;
+  @JsonProperty("updated_at")
   private String updatedAt;
 
   public Long getId() {
@@ -27,9 +38,6 @@ public class OrderResponse {
     return totalAmount;
   }
 
-  public PaymentMethod getPaymentMethod() {
-    return paymentMethod;
-  }
 
   public String getPaymentStatus() {
     return paymentStatus;
@@ -67,7 +75,11 @@ public class OrderResponse {
     this.totalAmount = totalAmount;
   }
 
-  public void setPaymentMethod(PaymentMethod paymentMethod) {
+  public String getPaymentMethod() {
+    return paymentMethod;
+  }
+
+  public void setPaymentMethod(String paymentMethod) {
     this.paymentMethod = paymentMethod;
   }
 

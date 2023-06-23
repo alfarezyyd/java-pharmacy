@@ -1,17 +1,17 @@
 package alfarezyyd.pharmacy.constraint;
 
-import alfarezyyd.pharmacy.validator.ValidGenderValidator;
+import alfarezyyd.pharmacy.validator.ValidMedicineIdValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = {ValidGenderValidator.class})
+@Constraint(validatedBy = {ValidMedicineIdValidator.class})
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidGenderConstraint {
-  String message() default "invalid gender! must be one of this : {Man, Woman}";
+public @interface ValidMedicineIdConstraint {
+  String message() default "invalid medicine id! medicine id must be unique";
 
   Class<?>[] groups() default {};
 

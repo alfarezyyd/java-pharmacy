@@ -15,6 +15,7 @@ import alfarezyyd.pharmacy.repository.CustomerRepository;
 import alfarezyyd.pharmacy.usecase.AddressUsecase;
 import alfarezyyd.pharmacy.usecase.CustomerUsecase;
 import alfarezyyd.pharmacy.util.SearchUtil;
+import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
 import jakarta.validation.ConstraintViolation;
@@ -49,7 +50,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
         customerResponses.add(Model.convertToCustomerResponse(customer));
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return customerResponses;
   }
@@ -66,7 +67,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       }
       customerResponse = Model.convertToCustomerResponse(customer);
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return customerResponse;
   }
@@ -76,7 +77,8 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     Set<ConstraintViolation<CustomerCreateRequest>> constraintViolations = ValidationUtil.getValidator().validate(customerCreateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<CustomerCreateRequest> constraintViolation : constraintViolations) {
-        clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+        String propertyPath = constraintViolation.getPropertyPath().toString();
+        clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
       return;
     }
@@ -89,7 +91,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       Long customerId = customerRepository.createCustomer(connection, customer);
       addressUsecase.createAddress(serverError, customerCreateRequest.getAddressCreateRequest(), customerId);
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
@@ -100,7 +102,8 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     Set<ConstraintViolation<CustomerUpdateRequest>> constraintViolations = ValidationUtil.getValidator().validate(customerUpdateRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<CustomerUpdateRequest> constraintViolation : constraintViolations) {
-        clientError.addValidationError(constraintViolation.getPropertyPath().toString(), constraintViolation.getMessage());
+        String propertyPath = constraintViolation.getPropertyPath().toString();
+        clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
     }
     try (Connection connection = hikariDataSource.getConnection()) {
@@ -116,7 +119,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
         customerRepository.updateCustomer(connection, customer);
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
@@ -129,12 +132,12 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       if (isCustomerExists) {
         LinkedList<Address> allAddressByCustomerId = addressRepository.getAllAddressByCustomerId(connection, customerId);
         for (Address address : allAddressByCustomerId) {
-          addressRepository.permanentlyDeleteCustomerAddress(connection, address.getId(), customerId);
+          addressRepository.deleteCustomerAddress(connection, address.getId(), customerId);
         }
-        customerRepository.permanentlyDeleteCustomer(connection, customerId);
+        customerRepository.deleteCustomer(connection, customerId);
       }
     } catch (SQLException e) {
-      serverError.addDatabaseError(e.getMessage(), e.getErrorCode());
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (ActionError e) {
       clientError.addActionError(e.getAction(), e.getErrorMessage());
     }

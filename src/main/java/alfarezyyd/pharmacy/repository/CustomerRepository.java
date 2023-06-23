@@ -17,7 +17,6 @@ public interface CustomerRepository {
 
   void updateCustomer(Connection connection, Customer customer) throws DatabaseError;
 
-  void softDeleteCustomer(Connection connection, Customer customer) throws DatabaseError;
 
-  void permanentlyDeleteCustomer(Connection connection, Long customerId) throws DatabaseError;
+  void deleteCustomer(Connection connection, Long customerId) throws DatabaseError;
 }

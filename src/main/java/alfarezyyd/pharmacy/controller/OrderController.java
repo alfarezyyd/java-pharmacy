@@ -68,7 +68,6 @@ public class OrderController extends HttpServlet {
     ServerError serverError = new ServerError();
     OrderUpdateRequest orderUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderUpdateRequest.class);
     orderUsecase.updateOrder(serverError, clientError, orderUpdateRequest);
-
     ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 

@@ -16,7 +16,7 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
   @Override
   public LinkedList<MedicineInformation> getAllMedicineInformation(Connection connection, Long id) throws DatabaseError {
     String sqlSyntax = """
-        SELECT * FROM medicines_information 
+        SELECT * FROM medicines_information
         """;
     LinkedList<MedicineInformation> allMedicineInformation = new LinkedList<>();
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
@@ -38,7 +38,7 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
         allMedicineInformation.add(medicineInformation);
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return allMedicineInformation;
   }
@@ -57,7 +57,7 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
         throw new ActionError("check if medicine information exists", "medicine information not found");
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -80,7 +80,7 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
       preparedStatement.setString(11, medicineInformation.getCountryOfOrigin());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -103,7 +103,7 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
       preparedStatement.setLong(11, medicineInformation.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
 
   }
@@ -117,7 +117,7 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
       preparedStatement.setLong(1, medicineInformationId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

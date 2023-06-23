@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidDosageFormConstraint {
-  String message() default "invalid dosage form!, must be one of this : {Tablet, Capsule, Caplet, Pill, Powder, Suppositoria, Rub, Liquid, Suspension, Injection, Drop, Inhaler}";
+  String message() default "invalid dosage form! must be one of this : {Tablet, Capsule, Caplet, Pill, Powder, Suppositoria, Rub, Liquid, Suspension, Injection, Drop, Inhaler}";
 
   Class<?>[] groups() default {};
 

@@ -35,9 +35,12 @@ public class DependencyContainer {
     MedicineRepository medicineRepository = new MedicineRepositoryImpl();
     medicineUsecase = new MedicineUsecaseImpl(medicineRepository, hikariDataSource, medicineInformationUsecase);
 
+    // OrderMedicine
+    OrderMedicineRepository orderMedicineRepository = new OrderMedicineRepositoryImpl();
+    OrderMedicineUsecase orderMedicineUsecase = new OrderMedicineUsecaseImpl(hikariDataSource, orderMedicineRepository, medicineRepository);
     // Order
     OrderRepository orderRepository = new OrderRepositoryImpl();
-    orderUsecase = new OrderUsecaseImpl(customerRepository, orderRepository, hikariDataSource);
+    orderUsecase = new OrderUsecaseImpl(customerRepository, orderMedicineUsecase, orderRepository, hikariDataSource);
   }
 
 

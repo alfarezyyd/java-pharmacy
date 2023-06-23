@@ -15,7 +15,6 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     String sqlSyntax = """
         SELECT * FROM customers WHERE id = ?
         """;
-    Customer customer;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, customerId);
       ResultSet resultSet = preparedStatement.executeQuery();
@@ -25,7 +24,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         throw new ActionError("check if customer exists", "customer not found");
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -49,7 +48,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         allCustomer.add(customer);
       }
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
     return allCustomer;
 
@@ -73,7 +72,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       }
       return customerId;
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
@@ -90,26 +89,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       preparedStatement.setLong(5, customer.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 
   @Override
-  public void softDeleteCustomer(Connection connection, Customer customer) throws DatabaseError {
-    String sqlSyntax = """
-        UPDATE customers SET deleted_at=? WHERE id=?
-        """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setTimestamp(1, customer.getDeletedAt());
-      preparedStatement.setLong(2, customer.getId());
-      preparedStatement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
-    }
-  }
-
-  @Override
-  public void permanentlyDeleteCustomer(Connection connection, Long customerId) throws DatabaseError {
+  public void deleteCustomer(Connection connection, Long customerId) throws DatabaseError {
     String sqlSyntax = """
         DELETE FROM customers WHERE id=?
         """;
@@ -117,7 +102,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       preparedStatement.setLong(1, customerId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode());
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
   }
 }

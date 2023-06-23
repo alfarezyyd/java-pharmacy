@@ -12,7 +12,6 @@ public class Customer  implements Identifiable {
   private String phone;
   private Timestamp createdAt;
   private Timestamp updatedAt;
-  private Timestamp deletedAt;
 
   public Long getId() {
     return id;
@@ -70,13 +69,6 @@ public class Customer  implements Identifiable {
     this.updatedAt = updatedAt;
   }
 
-  public Timestamp getDeletedAt() {
-    return deletedAt;
-  }
-
-  public void setDeletedAt(Timestamp deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -90,9 +82,8 @@ public class Customer  implements Identifiable {
     if (!dateOfBirth.equals(customer.dateOfBirth)) return false;
     if (gender != customer.gender) return false;
     if (!phone.equals(customer.phone)) return false;
-    if (!Objects.equals(createdAt, customer.createdAt)) return false;
-    if (!Objects.equals(updatedAt, customer.updatedAt)) return false;
-    return Objects.equals(deletedAt, customer.deletedAt);
+    if (!createdAt.equals(customer.createdAt)) return false;
+    return Objects.equals(updatedAt, customer.updatedAt);
   }
 
   @Override
@@ -102,9 +93,8 @@ public class Customer  implements Identifiable {
     result = 31 * result + dateOfBirth.hashCode();
     result = 31 * result + gender.hashCode();
     result = 31 * result + phone.hashCode();
-    result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+    result = 31 * result + createdAt.hashCode();
     result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
-    result = 31 * result + (deletedAt != null ? deletedAt.hashCode() : 0);
     return result;
   }
 
@@ -118,7 +108,6 @@ public class Customer  implements Identifiable {
         ", phone='" + phone + '\'' +
         ", createdAt=" + createdAt +
         ", updatedAt=" + updatedAt +
-        ", deletedAt=" + deletedAt +
         '}';
   }
 }

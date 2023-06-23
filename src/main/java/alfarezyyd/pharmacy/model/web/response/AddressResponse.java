@@ -1,18 +1,23 @@
 package alfarezyyd.pharmacy.model.web.response;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AddressResponse {
   private Long id;
   private String street;
   private String city;
   private String state;
   private String country;
+  @JsonProperty("postal_code")
   private String postalCode;
+  @JsonProperty("is_default")
   private Boolean isDefault;
   private String description;
+  @JsonProperty("created_at")
   private String createdAt;
+  @JsonProperty("updated_at")
   private String updatedAt;
-  private String deletedAt;
 
   public Long getId() {
     return id;
@@ -54,9 +59,6 @@ public class AddressResponse {
     return updatedAt;
   }
 
-  public String getDeletedAt() {
-    return deletedAt;
-  }
 
   public void setId(Long id) {
     this.id = id;
@@ -104,8 +106,5 @@ public class AddressResponse {
   }
 
 
-  public void setDeletedAt(String deletedAt) {
-    this.deletedAt = deletedAt;
-  }
 
 }

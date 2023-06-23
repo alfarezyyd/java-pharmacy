@@ -12,7 +12,6 @@ public class User implements Identifiable {
   private Timestamp lastLogin;
   private Timestamp createdAt;
   private Timestamp updatedAt;
-  private Timestamp deletedAt;
 
   public Long getId() {
     return id;
@@ -78,28 +77,6 @@ public class User implements Identifiable {
     this.updatedAt = updatedAt;
   }
 
-  public Timestamp getDeletedAt() {
-    return deletedAt;
-  }
-
-  public void setDeletedAt(Timestamp deletedAt) {
-    this.deletedAt = deletedAt;
-  }
-
-  @Override
-  public String toString() {
-    return "User{" +
-        "id=" + id +
-        ", customerId=" + customerId +
-        ", username='" + username + '\'' +
-        ", email='" + email + '\'' +
-        ", password='" + password + '\'' +
-        ", lastLogin=" + lastLogin +
-        ", createdAt=" + createdAt +
-        ", updatedAt=" + updatedAt +
-        ", deletedAt=" + deletedAt +
-        '}';
-  }
 
   @Override
   public boolean equals(Object o) {
@@ -115,8 +92,7 @@ public class User implements Identifiable {
     if (!password.equals(user.password)) return false;
     if (!Objects.equals(lastLogin, user.lastLogin)) return false;
     if (!createdAt.equals(user.createdAt)) return false;
-    if (!Objects.equals(updatedAt, user.updatedAt)) return false;
-    return Objects.equals(deletedAt, user.deletedAt);
+    return Objects.equals(updatedAt, user.updatedAt);
   }
 
   @Override
@@ -129,7 +105,20 @@ public class User implements Identifiable {
     result = 31 * result + (lastLogin != null ? lastLogin.hashCode() : 0);
     result = 31 * result + createdAt.hashCode();
     result = 31 * result + (updatedAt != null ? updatedAt.hashCode() : 0);
-    result = 31 * result + (deletedAt != null ? deletedAt.hashCode() : 0);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+        "id=" + id +
+        ", customerId=" + customerId +
+        ", username='" + username + '\'' +
+        ", email='" + email + '\'' +
+        ", password='" + password + '\'' +
+        ", lastLogin=" + lastLogin +
+        ", createdAt=" + createdAt +
+        ", updatedAt=" + updatedAt +
+        '}';
   }
 }

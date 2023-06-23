@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 public class CustomerCreateRequest {
   @Valid
   @JsonProperty("address")
-  private AddressCreateRequest addressCreateRequest;
+  private AddressCreateRequest address;
   @NotBlank
   @Size(max = 255)
   @JsonProperty("full_name")
@@ -27,7 +27,7 @@ public class CustomerCreateRequest {
   private String phone;
 
   public AddressCreateRequest getAddressCreateRequest() {
-    return addressCreateRequest;
+    return address;
   }
 
 

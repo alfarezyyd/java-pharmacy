@@ -6,8 +6,8 @@ import java.util.LinkedList;
 public class ServerError {
   private final LinkedList<DatabaseError> databaseErrors = new LinkedList<>();
 
-  public void addDatabaseError(String errorReason, Integer errorCode) {
-    databaseErrors.add(new DatabaseError(errorReason, errorCode));
+  public void addDatabaseError(String errorReason, Integer errorCode, String SQLState) {
+    databaseErrors.add(new DatabaseError(errorReason, errorCode, SQLState));
   }
 
   public Boolean hasErrors() {
@@ -23,4 +23,5 @@ public class ServerError {
     serverErrorsResponse.put("database_errors", getDatabaseErrors());
     return serverErrorsResponse;
   }
+
 }
