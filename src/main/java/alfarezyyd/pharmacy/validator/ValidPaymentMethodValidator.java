@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.validator;
 
 import alfarezyyd.pharmacy.constraint.ValidPaymentMethodConstraint;
-import alfarezyyd.pharmacy.model.entity.PaymentMethod;
+import alfarezyyd.pharmacy.model.entity.option.PaymentMethod;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

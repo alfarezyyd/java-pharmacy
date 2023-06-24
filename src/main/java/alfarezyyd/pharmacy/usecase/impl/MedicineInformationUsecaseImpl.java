@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
-import alfarezyyd.pharmacy.model.entity.DosageForm;
+import alfarezyyd.pharmacy.model.entity.option.DosageForm;
 import alfarezyyd.pharmacy.model.entity.MedicineInformation;
 import alfarezyyd.pharmacy.model.web.medicineInformation.MedicineInformationCreateRequest;
 import alfarezyyd.pharmacy.model.web.medicineInformation.MedicineInformationUpdateRequest;

@@ -10,6 +10,7 @@ import alfarezyyd.pharmacy.model.web.response.EmployeeResponse;
 import alfarezyyd.pharmacy.usecase.EmployeeUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -44,9 +45,10 @@ public class EmployeeController extends HttpServlet {
         clientError.addActionError("get detail employee", "failed! query param {employee-id} not a number");
       }
     } else {
-      allEmployee = employeeUsecase.getAllEmployee(serverError);
+      String sortedBy = req.getParameter("sorted-by");
+      allEmployee = employeeUsecase.getAllEmployee(serverError, clientError, sortedBy);
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, allEmployee);
@@ -59,10 +61,10 @@ public class EmployeeController extends HttpServlet {
     try {
       EmployeeCreateRequest employeeCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), EmployeeCreateRequest.class);
       employeeUsecase.createEmployee(serverError, clientError, employeeCreateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("create new employee", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -75,10 +77,10 @@ public class EmployeeController extends HttpServlet {
     try {
       EmployeeUpdateRequest employeeUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), EmployeeUpdateRequest.class);
       employeeUsecase.updateEmployee(serverError, clientError, employeeUpdateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("update employee", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -96,7 +98,7 @@ public class EmployeeController extends HttpServlet {
       clientError.addActionError("delete employee", "invalid! query param {employee-id} must number");
     }
 
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)){
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

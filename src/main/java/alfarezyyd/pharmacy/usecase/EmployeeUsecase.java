@@ -9,7 +9,7 @@ import alfarezyyd.pharmacy.model.web.response.EmployeeResponse;
 import java.util.LinkedList;
 
 public interface EmployeeUsecase {
-  LinkedList<EmployeeResponse> getAllEmployee(ServerError serverError);
+  LinkedList<EmployeeResponse> getAllEmployee(ServerError serverError, ClientError clientError, String sortedBy);
 
   EmployeeResponse getDetailEmployee(ServerError serverError, ClientError clientError, Long employeeId);
 

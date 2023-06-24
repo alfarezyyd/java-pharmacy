@@ -17,5 +17,5 @@ public interface UserUsecase {
   void updateUser(ServerError serverError, ClientError clientError, UserUpdateRequest userUpdateRequest);
 
   void deleteUser(ServerError serverError, ClientError clientError, Long userId);
-  Boolean userLogin(ServerError serverError, ClientError clientError, LoginRequest loginRequest);
+  String userLogin(ServerError serverError, ClientError clientError, LoginRequest loginRequest);
 }

@@ -1,11 +1,13 @@
 package alfarezyyd.pharmacy.model.entity;
 
+import alfarezyyd.pharmacy.model.entity.trait.Identifiable;
+
 import java.sql.Timestamp;
 import java.util.Objects;
 
 public class Medicine implements Identifiable {
   private Long id;
-  private String name;
+  private String fullName;
   private String brand;
   private Integer price;
   private Integer stock;
@@ -20,12 +22,12 @@ public class Medicine implements Identifiable {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public String getFullName() {
+    return fullName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
   }
 
 
@@ -79,7 +81,7 @@ public class Medicine implements Identifiable {
     Medicine medicine = (Medicine) o;
 
     if (!id.equals(medicine.id)) return false;
-    if (!name.equals(medicine.name)) return false;
+    if (!fullName.equals(medicine.fullName)) return false;
     if (!brand.equals(medicine.brand)) return false;
     if (!price.equals(medicine.price)) return false;
     if (!stock.equals(medicine.stock)) return false;
@@ -90,7 +92,7 @@ public class Medicine implements Identifiable {
   @Override
   public int hashCode() {
     int result = id.hashCode();
-    result = 31 * result + name.hashCode();
+    result = 31 * result + fullName.hashCode();
     result = 31 * result + brand.hashCode();
     result = 31 * result + price.hashCode();
     result = 31 * result + stock.hashCode();

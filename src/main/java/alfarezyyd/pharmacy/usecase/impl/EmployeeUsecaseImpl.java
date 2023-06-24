@@ -4,13 +4,16 @@ import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.Employee;
-import alfarezyyd.pharmacy.model.entity.Gender;
+import alfarezyyd.pharmacy.model.entity.User;
+import alfarezyyd.pharmacy.model.entity.option.Gender;
 import alfarezyyd.pharmacy.model.web.employee.EmployeeCreateRequest;
 import alfarezyyd.pharmacy.model.web.employee.EmployeeUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.EmployeeResponse;
 import alfarezyyd.pharmacy.repository.EmployeeRepository;
+import alfarezyyd.pharmacy.repository.UserRepository;
 import alfarezyyd.pharmacy.usecase.EmployeeUsecase;
 import alfarezyyd.pharmacy.util.SearchUtil;
+import alfarezyyd.pharmacy.util.SortingUtil;
 import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
@@ -20,25 +23,40 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Set;
 
 public class EmployeeUsecaseImpl implements EmployeeUsecase {
   private final EmployeeRepository employeeRepository;
   private final HikariDataSource hikariDataSource;
+  private final UserRepository userRepository;
 
-  public EmployeeUsecaseImpl(EmployeeRepository employeeRepository, HikariDataSource hikariDataSource) {
+  public EmployeeUsecaseImpl(EmployeeRepository employeeRepository, HikariDataSource hikariDataSource, UserRepository userRepository) {
     this.employeeRepository = employeeRepository;
     this.hikariDataSource = hikariDataSource;
+    this.userRepository = userRepository;
   }
 
   @Override
-  public LinkedList<EmployeeResponse> getAllEmployee(ServerError serverError) {
+  public LinkedList<EmployeeResponse> getAllEmployee(ServerError serverError, ClientError clientError, String sortedBy) {
     LinkedList<EmployeeResponse> employeeResponses = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Employee> allEmployee = employeeRepository.getAllEmployee(connection);
+      if (sortedBy != null) {
+        switch (sortedBy) {
+          case "full-name" -> SortingUtil.QuickSort.quickSort(allEmployee, Comparator.comparing(Employee::getFullName));
+          case "hire-date" -> SortingUtil.QuickSort.quickSort(allEmployee, Comparator.comparing(Employee::getHireDate));
+          case "created-at" ->
+              SortingUtil.QuickSort.quickSort(allEmployee, Comparator.comparing(Employee::getCreatedAt));
+          default -> {
+            clientError.addActionError("get all employee with sorted by " + sortedBy, "invalid! data employee can't sorted by " + sortedBy);
+            return null;
+          }
+        }
+      }
       for (Employee employee : allEmployee) {
-        employeeResponses.add(Model.convertToEmployeeResponse(employee));
+        employeeResponses.add(Model.convertToEmployeeResponse(employee, null));
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -48,7 +66,25 @@ public class EmployeeUsecaseImpl implements EmployeeUsecase {
 
   @Override
   public EmployeeResponse getDetailEmployee(ServerError serverError, ClientError clientError, Long employeeId) {
-    return null;
+    EmployeeResponse employeeResponse = new EmployeeResponse();
+    try (Connection connection = hikariDataSource.getConnection()) {
+      LinkedList<Employee> allEmployee = employeeRepository.getAllEmployee(connection);
+      Employee employee = SearchUtil.binarySearch(allEmployee, employeeId);
+      if (employee == null) {
+        clientError.addActionError("get detail employee", "employee not found");
+        return null;
+      }
+      LinkedList<User> allUser = userRepository.getAllUser(connection);
+      User user = SearchUtil.sequentialSearchByEmployeeId(allUser, employeeId);
+      if (user == null) {
+        clientError.addActionError("get detail employee", "user hasn't been created");
+        return null;
+      }
+      employeeResponse = Model.convertToEmployeeResponse(employee, Model.convertToUserResponse(user));
+    } catch (SQLException e) {
+      serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+    }
+    return employeeResponse;
   }
 
   @Override
@@ -64,7 +100,7 @@ public class EmployeeUsecaseImpl implements EmployeeUsecase {
 
     try (Connection connection = hikariDataSource.getConnection()) {
       Employee employee = new Employee();
-      employee.setName(employeeCreateRequest.getName());
+      employee.setFullName(employeeCreateRequest.getFullName());
       employee.setGender(Gender.fromValue(employeeCreateRequest.getGender()));
       employee.setHireDate(Date.valueOf(employeeCreateRequest.getHireDate()));
       employee.setPosition(employeeCreateRequest.getPosition());
@@ -95,7 +131,7 @@ public class EmployeeUsecaseImpl implements EmployeeUsecase {
         clientError.addActionError("update employee", "employee not found");
         return;
       }
-      employee.setName(employeeUpdateRequest.getName());
+      employee.setFullName(employeeUpdateRequest.getFullName());
       employee.setGender(Gender.fromValue(employeeUpdateRequest.getGender()));
       employee.setHireDate(Date.valueOf(employeeUpdateRequest.getHireDate()));
       employee.setPosition(employeeUpdateRequest.getPosition());

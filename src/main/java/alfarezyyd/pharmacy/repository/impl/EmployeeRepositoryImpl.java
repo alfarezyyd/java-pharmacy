@@ -2,7 +2,7 @@ package alfarezyyd.pharmacy.repository.impl;
 
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Employee;
-import alfarezyyd.pharmacy.model.entity.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Gender;
 import alfarezyyd.pharmacy.repository.EmployeeRepository;
 
 import java.sql.Connection;
@@ -23,7 +23,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
       while (resultSet.next()) {
         Employee employee = new Employee();
         employee.setId(resultSet.getLong("id"));
-        employee.setName(resultSet.getString("name"));
+        employee.setFullName(resultSet.getString("full_name"));
         employee.setGender(Gender.fromValue(resultSet.getString("gender")));
         employee.setHireDate(resultSet.getDate("hire_date"));
         employee.setPosition(resultSet.getString("position"));
@@ -42,10 +42,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
   @Override
   public void createEmployee(Connection connection, Employee employee) throws DatabaseError {
     String sqlSyntax = """
-        INSERT INTO employees(name, gender, hire_date, position, start_date, end_date) VALUES (?,?,?,?,?,?)
+        INSERT INTO employees(full_name, gender, hire_date, position, start_date, end_date) VALUES (?,?,?,?,?,?)
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setString(1, employee.getName());
+      preparedStatement.setString(1, employee.getFullName());
       preparedStatement.setString(2, employee.getGender().getValue());
       preparedStatement.setDate(3, employee.getHireDate());
       preparedStatement.setString(4, employee.getPosition());
@@ -60,10 +60,10 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
   @Override
   public void updateEmployee(Connection connection, Employee employee) throws DatabaseError {
     String sqlSyntax = """
-        UPDATE employees SET name=?, gender=?, hire_date=?, position=?, start_date=?, end_date=?, updated_at=? WHERE id=?
+        UPDATE employees SET full_name=?, gender=?, hire_date=?, position=?, start_date=?, end_date=?, updated_at=? WHERE id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setString(1, employee.getName());
+      preparedStatement.setString(1, employee.getFullName());
       preparedStatement.setString(2, employee.getGender().getValue());
       preparedStatement.setDate(3, employee.getHireDate());
       preparedStatement.setString(4, employee.getPosition());

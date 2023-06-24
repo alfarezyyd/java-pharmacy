@@ -3,6 +3,10 @@ package alfarezyyd.pharmacy.repository.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.*;
+import alfarezyyd.pharmacy.model.entity.option.OrderStatus;
+import alfarezyyd.pharmacy.model.entity.option.PaymentMethod;
+import alfarezyyd.pharmacy.model.entity.option.PaymentStatus;
+import alfarezyyd.pharmacy.model.entity.option.ShippingMethod;
 import alfarezyyd.pharmacy.repository.OrderRepository;
 
 import java.sql.*;

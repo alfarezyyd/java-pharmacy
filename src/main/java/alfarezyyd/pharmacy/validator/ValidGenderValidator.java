@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.validator;
 
 import alfarezyyd.pharmacy.constraint.ValidGenderConstraint;
-import alfarezyyd.pharmacy.model.entity.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Gender;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

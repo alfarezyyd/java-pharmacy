@@ -1,0 +1,2 @@
+2023-06-24T18:17:44.575826900 {server_errors={database_errors=[DatabaseError{message='Column 'idbag' not found.', errorCode=0, SQLState='S0022'}], operation_erros=[]}}
+2023-06-24T21:25:02.014853100 {server_errors={database_errors=[DatabaseError{message='Column 'name' not found.', errorCode=0, SQLState='S0022'}], operation_erros=[]}}

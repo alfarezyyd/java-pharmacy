@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.repository.impl;
 
 import alfarezyyd.pharmacy.exception.DatabaseError;
-import alfarezyyd.pharmacy.model.entity.DosageForm;
+import alfarezyyd.pharmacy.model.entity.option.DosageForm;
 import alfarezyyd.pharmacy.model.entity.MedicineInformation;
 import alfarezyyd.pharmacy.repository.MedicineInformationRepository;
 

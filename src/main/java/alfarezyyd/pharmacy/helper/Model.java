@@ -40,7 +40,7 @@ public class Model {
   public static MedicineResponse convertToMedicineResponse(Medicine medicine, MedicineInformationResponse medicineInformationResponse) {
     MedicineResponse medicineResponse = new MedicineResponse();
     medicineResponse.setId(medicine.getId());
-    medicineResponse.setName(medicine.getName());
+    medicineResponse.setName(medicine.getFullName());
     medicineResponse.setBrand(medicine.getBrand());
     medicineResponse.setPrice(medicine.getPrice());
     medicineResponse.setStock(medicine.getStock());
@@ -78,10 +78,10 @@ public class Model {
     return orderResponse;
   }
 
-  public static EmployeeResponse convertToEmployeeResponse(Employee employee) {
+  public static EmployeeResponse convertToEmployeeResponse(Employee employee, UserResponse userResponse) {
     EmployeeResponse employeeResponse = new EmployeeResponse();
     employeeResponse.setId(employee.getId());
-    employeeResponse.setName(employee.getName());
+    employeeResponse.setFullName(employee.getFullName());
     employeeResponse.setGender(employee.getGender().getValue());
     employeeResponse.setHireDate(employee.getHireDate().toString());
     employeeResponse.setPosition(employee.getPosition());
@@ -89,6 +89,7 @@ public class Model {
     employeeResponse.setEndDate(employee.getEndDate() != null ? employee.getEndDate().toString() : null);
     employeeResponse.setCreatedAt(employee.getCreatedAt().toString());
     employeeResponse.setUpdatedAt(employee.getUpdatedAt() != null ? employee.getUpdatedAt().toString() : null);
+    employeeResponse.setUser(userResponse);
     return employeeResponse;
   }
 

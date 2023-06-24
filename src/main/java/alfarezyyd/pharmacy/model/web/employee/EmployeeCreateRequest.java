@@ -9,7 +9,8 @@ import jakarta.validation.constraints.Size;
 public class EmployeeCreateRequest {
   @NotBlank
   @Size(max = 255)
-  private String name;
+  @JsonProperty("full_name")
+  private String fullName;
   @ValidGenderConstraint
   @NotBlank
   private String gender;
@@ -28,8 +29,8 @@ public class EmployeeCreateRequest {
   @JsonProperty("end_date")
   private String endDate;
 
-  public String getName() {
-    return name;
+  public String getFullName() {
+    return fullName;
   }
 
   public String getGender() {

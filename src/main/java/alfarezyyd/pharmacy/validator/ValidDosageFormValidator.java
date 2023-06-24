@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.validator;
 
 import alfarezyyd.pharmacy.constraint.ValidDosageFormConstraint;
-import alfarezyyd.pharmacy.model.entity.DosageForm;
+import alfarezyyd.pharmacy.model.entity.option.DosageForm;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

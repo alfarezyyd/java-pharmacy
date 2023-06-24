@@ -11,6 +11,7 @@ import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
 import alfarezyyd.pharmacy.usecase.CustomerUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -45,10 +46,12 @@ public class CustomerController extends HttpServlet {
         clientError.addActionError("get detail customer", "failed! query param {customer-id} not a number");
       }
     } else {
-      allCustomer = customerUsecase.getAllCustomer(serverError);
+      String sortedBy = req.getParameter("sorted-by");
+      String algorithm = req.getParameter("algorithm");
+      allCustomer = customerUsecase.getAllCustomer(serverError, clientError, sortedBy, algorithm);
     }
 
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, allCustomer);
@@ -61,10 +64,10 @@ public class CustomerController extends HttpServlet {
     try {
       CustomerCreateRequest customerCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerCreateRequest.class);
       customerUsecase.createCustomer(serverError, clientError, customerCreateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e){
       clientError.addActionError("create new customer", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -77,10 +80,10 @@ public class CustomerController extends HttpServlet {
     try {
       CustomerUpdateRequest customerUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerUpdateRequest.class);
       customerUsecase.updateCustomer(serverError, clientError, customerUpdateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("update customer", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -97,7 +100,7 @@ public class CustomerController extends HttpServlet {
     } catch (NumberFormatException e) {
       clientError.addActionError("delete customer!", "failed! query param {customer-id} not a number");
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

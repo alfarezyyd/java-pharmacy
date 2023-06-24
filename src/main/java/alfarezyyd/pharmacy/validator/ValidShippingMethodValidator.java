@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.validator;
 
 import alfarezyyd.pharmacy.constraint.ValidShippingMethodConstraint;
-import alfarezyyd.pharmacy.model.entity.ShippingMethod;
+import alfarezyyd.pharmacy.model.entity.option.ShippingMethod;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

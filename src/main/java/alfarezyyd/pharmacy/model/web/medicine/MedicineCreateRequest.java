@@ -11,7 +11,8 @@ public class MedicineCreateRequest {
   @JsonProperty("medicine_information")
   private MedicineInformationCreateRequest medicineInformation;
   @NotBlank
-  private String name;
+  @JsonProperty("full_name")
+  private String fullName;
   @NotBlank
   private String brand;
   @NotNull
@@ -19,8 +20,8 @@ public class MedicineCreateRequest {
   @NotNull
   private Integer stock;
 
-  public String getName() {
-    return name;
+  public String getFullName() {
+    return fullName;
   }
 
 

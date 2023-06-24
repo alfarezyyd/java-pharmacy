@@ -4,10 +4,7 @@ import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.User;
 import alfarezyyd.pharmacy.repository.UserRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.LinkedList;
 
 public class UserRepositoryImpl implements UserRepository {
@@ -56,15 +53,14 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   public void updateUser(Connection connection, User user) throws DatabaseError {
     String sqlSyntax = """
-        UPDATE users SET username=?, password=?, last_login=?, updated_at=? WHERE id=?
+        UPDATE users SET username=?, password=?, updated_at=? WHERE id=?
         """;
     try {
       PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
       preparedStatement.setString(1, user.getUsername());
       preparedStatement.setString(2, user.getPassword());
-      preparedStatement.setTimestamp(3, user.getLastLogin());
-      preparedStatement.setTimestamp(4, user.getUpdatedAt());
-      preparedStatement.setLong(5, user.getId());
+      preparedStatement.setTimestamp(3, user.getUpdatedAt());
+      preparedStatement.setLong(4, user.getId());
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
@@ -93,6 +89,19 @@ public class UserRepositoryImpl implements UserRepository {
       preparedStatement.setString(1, email);
       preparedStatement.setLong(2, userId);
       preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+    }
+  }
+
+  @Override
+  public void updateLastLoginUser(Connection connection, Timestamp currentTimestamp, Long userId) throws DatabaseError {
+    String sqlSyntax = """
+        UPDATE users SET last_login=? WHERE id=?
+        """;
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+      preparedStatement.setTimestamp(1, currentTimestamp);
+      preparedStatement.setLong(2, userId);
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }

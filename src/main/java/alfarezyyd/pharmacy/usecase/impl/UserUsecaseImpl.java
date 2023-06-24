@@ -137,7 +137,7 @@ public class UserUsecaseImpl implements UserUsecase {
   }
 
   @Override
-  public Boolean userLogin(ServerError serverError, ClientError clientError, LoginRequest loginRequest) {
+  public String userLogin(ServerError serverError, ClientError clientError, LoginRequest loginRequest) {
     Set<ConstraintViolation<LoginRequest>> constraintViolations = ValidationUtil.getValidator().validate(loginRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<LoginRequest> constraintViolation : constraintViolations) {
@@ -145,20 +145,29 @@ public class UserUsecaseImpl implements UserUsecase {
         clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
     }
-
+    String employeePosition = null;
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<User> allUser = userRepository.getAllUser(connection);
       User user = SearchUtil.sequentialSearchByEmail(allUser, loginRequest.getEmail());
       if (user == null) {
         clientError.addActionError("login", "failed! user not found");
-        return false;
+        return null;
       }
-      return user.getPassword().equals(HashingUtil.hashWithSHA256(loginRequest.getPassword()));
+
+      boolean isUserValid = user.getPassword().equals(HashingUtil.hashWithSHA256(loginRequest.getPassword()));
+      if (isUserValid) {
+        userRepository.updateLastLoginUser(connection, new Timestamp(System.currentTimeMillis()), user.getId());
+        LinkedList<Employee> allEmployee = employeeRepository.getAllEmployee(connection);
+        Employee employee = SearchUtil.binarySearch(allEmployee, user.getEmployeeId());
+        if (employee != null) {
+          employeePosition = employee.getPosition();
+        }
+      }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     } catch (OperationError e) {
       serverError.addOperationError(e.getOperation(), e.getErrorMessage());
     }
-    return false;
+    return employeePosition;
   }
 }

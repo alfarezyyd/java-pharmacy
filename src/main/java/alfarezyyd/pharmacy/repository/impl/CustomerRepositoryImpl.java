@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.repository.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Customer;
-import alfarezyyd.pharmacy.model.entity.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Gender;
 import alfarezyyd.pharmacy.repository.CustomerRepository;
 
 import java.sql.*;

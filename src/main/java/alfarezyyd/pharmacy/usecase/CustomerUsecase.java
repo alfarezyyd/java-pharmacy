@@ -9,7 +9,7 @@ import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
 import java.util.LinkedList;
 
 public interface CustomerUsecase {
-  LinkedList<CustomerResponse> getAllCustomer(ServerError serverError);
+  LinkedList<CustomerResponse> getAllCustomer(ServerError serverError, ClientError clientError, String sortedBy, String algorithm);
 
   CustomerResponse getDetailCustomer(ServerError serverError, ClientError clientError, Long customerId);
 

@@ -1,11 +1,13 @@
 package alfarezyyd.pharmacy.model.web.response;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EmployeeResponse {
   private Long id;
-  private String name;
+  @JsonProperty("full_name")
+  private String fullName;
   private String gender;
   @JsonProperty("hire_date")
   private String hireDate;
@@ -18,7 +20,9 @@ public class EmployeeResponse {
   private String createdAt;
   @JsonProperty("updated_at")
   private String updatedAt;
-
+  @JsonProperty("user")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  private UserResponse user;
   public Long getId() {
     return id;
   }
@@ -27,12 +31,12 @@ public class EmployeeResponse {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public String getFullName() {
+    return fullName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
   }
 
   public String getGender() {
@@ -89,5 +93,13 @@ public class EmployeeResponse {
 
   public void setUpdatedAt(String updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public UserResponse getUser() {
+    return user;
+  }
+
+  public void setUser(UserResponse user) {
+    this.user = user;
   }
 }

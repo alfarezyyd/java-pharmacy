@@ -20,7 +20,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       while (resultSet.next()) {
         Medicine medicine = new Medicine();
         medicine.setId(resultSet.getLong("id"));
-        medicine.setName(resultSet.getString("name"));
+        medicine.setFullName(resultSet.getString("name"));
         medicine.setBrand(resultSet.getString("brand"));
         medicine.setPrice(resultSet.getInt("price"));
         medicine.setStock(resultSet.getInt("stock"));
@@ -38,11 +38,11 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   @Override
   public Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError, ActionError {
     String sqlSyntax = """
-        INSERT INTO medicines(name, brand, price, stock) VALUES(?,?,?,?)
+        INSERT INTO medicines(full_name, brand, price, stock) VALUES(?,?,?,?)
         """;
     long generatedKeys;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
-      preparedStatement.setString(1, medicine.getName());
+      preparedStatement.setString(1, medicine.getFullName());
       preparedStatement.setString(2, medicine.getBrand());
       preparedStatement.setInt(3, medicine.getPrice());
       preparedStatement.setInt(4, medicine.getStock());
@@ -64,10 +64,10 @@ public class MedicineRepositoryImpl implements MedicineRepository {
   @Override
   public void updateMedicine(Connection connection, Medicine medicine) throws DatabaseError {
     String sqlSyntax = """
-        UPDATE medicines SET name=?, brand=?, price=?, stock=?, updated_at=? WHERE id=?
+        UPDATE medicines SET full_name=?, brand=?, price=?, stock=?, updated_at=? WHERE id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setString(1, medicine.getName());
+      preparedStatement.setString(1, medicine.getFullName());
       preparedStatement.setString(2, medicine.getBrand());
       preparedStatement.setInt(3, medicine.getPrice());
       preparedStatement.setInt(4, medicine.getStock());

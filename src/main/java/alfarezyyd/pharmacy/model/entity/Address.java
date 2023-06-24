@@ -1,5 +1,8 @@
 package alfarezyyd.pharmacy.model.entity;
 
+import alfarezyyd.pharmacy.model.entity.trait.HasCustomerId;
+import alfarezyyd.pharmacy.model.entity.trait.Identifiable;
+
 import java.sql.Timestamp;
 import java.util.Objects;
 

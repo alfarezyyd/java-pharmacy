@@ -1,5 +1,8 @@
 package alfarezyyd.pharmacy.model.entity;
 
+import alfarezyyd.pharmacy.model.entity.option.Gender;
+import alfarezyyd.pharmacy.model.entity.trait.Identifiable;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -110,4 +113,6 @@ public class Customer  implements Identifiable {
         ", updatedAt=" + updatedAt +
         '}';
   }
+
+
 }

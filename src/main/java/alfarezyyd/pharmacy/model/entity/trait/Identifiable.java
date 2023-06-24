@@ -1,4 +1,4 @@
-package alfarezyyd.pharmacy.model.entity;
+package alfarezyyd.pharmacy.model.entity.trait;
 
 public interface Identifiable {
   Long getId();

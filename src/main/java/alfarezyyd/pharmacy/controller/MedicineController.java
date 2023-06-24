@@ -10,6 +10,7 @@ import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import alfarezyyd.pharmacy.usecase.MedicineUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -44,9 +45,10 @@ public class MedicineController extends HttpServlet {
         clientError.addActionError("get detail customer!", "failed! query param {medicine-id} not a number");
       }
     } else {
-      allMedicine = medicineUsecase.getAllMedicine(serverError, clientError);
+      String sortedBy = req.getParameter("sorted-by");
+      allMedicine = medicineUsecase.getAllMedicine(serverError, clientError, sortedBy);
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, allMedicine);
@@ -59,10 +61,10 @@ public class MedicineController extends HttpServlet {
     try {
       MedicineCreateRequest medicineCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineCreateRequest.class);
       medicineUsecase.createMedicine(serverError, clientError, medicineCreateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("create medicine", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -75,10 +77,10 @@ public class MedicineController extends HttpServlet {
     try {
       MedicineUpdateRequest medicineUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineUpdateRequest.class);
       medicineUsecase.updateMedicine(serverError, clientError, medicineUpdateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("update medicine", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

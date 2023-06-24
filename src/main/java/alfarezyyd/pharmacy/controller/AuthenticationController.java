@@ -37,8 +37,9 @@ public class AuthenticationController extends HttpServlet {
     if (pathInfo != null) {
       if (pathInfo.equals("/login")) {
         LoginRequest loginRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), LoginRequest.class);
-        Boolean isUserValid = userUsecase.userLogin(serverError, clientError, loginRequest);
-        if (isUserValid) {
+        String employeePosition = userUsecase.userLogin(serverError, clientError, loginRequest);
+        if (employeePosition != null) {
+          httpSession.setAttribute("position", employeePosition);
           httpSession.setAttribute("email", loginRequest.getEmail());
           ResponseWriter.writeToResponseBodySuccess(resp, "Login Succeeded!");
         }
@@ -49,6 +50,6 @@ public class AuthenticationController extends HttpServlet {
     } else {
       clientError.addActionError("authentication", "please visit /login or /logout");
     }
-    ExceptionCheck.isExceptionOccured(serverError, clientError, resp);
+    ExceptionCheck.isExceptionOccurred(serverError, clientError, resp);
   }
 }

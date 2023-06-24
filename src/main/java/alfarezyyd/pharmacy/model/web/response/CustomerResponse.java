@@ -1,6 +1,7 @@
 package alfarezyyd.pharmacy.model.web.response;
 
-import alfarezyyd.pharmacy.model.entity.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Gender;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.LinkedList;
@@ -19,6 +20,7 @@ public class CustomerResponse {
   private String createdAt;
   @JsonProperty("updated_at")
   private String updatedAt;
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
   @JsonProperty("addresses")
   private LinkedList<AddressResponse> addressResponses;
 

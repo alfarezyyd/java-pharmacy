@@ -10,6 +10,7 @@ import alfarezyyd.pharmacy.model.web.user.UserUpdateRequest;
 import alfarezyyd.pharmacy.usecase.UserUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -34,7 +35,7 @@ public class UserController extends HttpServlet {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
     LinkedList<UserResponse> allUserResponse = userUsecase.getAllUser(serverError);
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, allUserResponse);
@@ -47,10 +48,10 @@ public class UserController extends HttpServlet {
     try {
       UserCreateRequest userCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), UserCreateRequest.class);
       userUsecase.createUser(serverError, clientError, userCreateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("create new user", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -63,10 +64,10 @@ public class UserController extends HttpServlet {
     try {
       UserUpdateRequest userUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), UserUpdateRequest.class);
       userUsecase.updateUser(serverError, clientError, userUpdateRequest);
-    } catch (JsonParseException e) {
+    } catch (JsonParseException | UnrecognizedPropertyException e) {
       clientError.addActionError("update user", e.getOriginalMessage());
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -83,7 +84,7 @@ public class UserController extends HttpServlet {
     } catch (NumberFormatException e) {
       clientError.addActionError("delete user!", "failed! query param {user-id} not a number");
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

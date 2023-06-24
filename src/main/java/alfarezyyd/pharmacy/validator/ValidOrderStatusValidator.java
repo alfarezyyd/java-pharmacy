@@ -1,7 +1,7 @@
 package alfarezyyd.pharmacy.validator;
 
 import alfarezyyd.pharmacy.constraint.ValidOrderStatusConstraint;
-import alfarezyyd.pharmacy.model.entity.OrderStatus;
+import alfarezyyd.pharmacy.model.entity.option.OrderStatus;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

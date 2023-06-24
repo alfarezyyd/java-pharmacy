@@ -13,7 +13,8 @@ public class MedicineUpdateRequest {
   @NotNull
   private Long id;
   @NotBlank
-  private String name;
+  @JsonProperty("full_name")
+  private String fullName;
   @NotBlank
   private String brand;
   @NotNull
@@ -25,8 +26,8 @@ public class MedicineUpdateRequest {
     return id;
   }
 
-  public String getName() {
-    return name;
+  public String getFullName() {
+    return fullName;
   }
 
 

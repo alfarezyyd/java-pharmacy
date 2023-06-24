@@ -3,9 +3,10 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
+import alfarezyyd.pharmacy.helper.SortingHelper;
 import alfarezyyd.pharmacy.model.entity.Customer;
 import alfarezyyd.pharmacy.helper.Model;
-import alfarezyyd.pharmacy.model.entity.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Gender;
 import alfarezyyd.pharmacy.model.web.customer.CustomerCreateRequest;
 import alfarezyyd.pharmacy.model.web.customer.CustomerUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.AddressResponse;
@@ -42,10 +43,13 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
 
 
   @Override
-  public LinkedList<CustomerResponse> getAllCustomer(ServerError serverError) {
+  public LinkedList<CustomerResponse> getAllCustomer(ServerError serverError, ClientError clientError, String sortedBy, String algorithm) {
     LinkedList<CustomerResponse> customerResponses = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      if (sortedBy != null || algorithm != null) {
+        SortingHelper.mappingCustomerSorting(sortedBy, algorithm, clientError, allCustomer);
+      }
       for (var customer : allCustomer) {
         customerResponses.add(Model.convertToCustomerResponse(customer, null));
       }

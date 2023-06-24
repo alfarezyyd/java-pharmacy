@@ -1,5 +1,12 @@
 package alfarezyyd.pharmacy.model.entity;
 
+import alfarezyyd.pharmacy.model.entity.option.OrderStatus;
+import alfarezyyd.pharmacy.model.entity.option.PaymentMethod;
+import alfarezyyd.pharmacy.model.entity.option.PaymentStatus;
+import alfarezyyd.pharmacy.model.entity.option.ShippingMethod;
+import alfarezyyd.pharmacy.model.entity.trait.HasCustomerId;
+import alfarezyyd.pharmacy.model.entity.trait.Identifiable;
+
 import java.sql.Timestamp;
 import java.util.Objects;
 

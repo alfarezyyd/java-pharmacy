@@ -1,5 +1,8 @@
 package alfarezyyd.pharmacy.model.entity;
 
+import alfarezyyd.pharmacy.model.entity.option.DosageForm;
+import alfarezyyd.pharmacy.model.entity.trait.Identifiable;
+
 import java.sql.Date;
 
 public class MedicineInformation implements Identifiable {

@@ -1,4 +1,4 @@
-package alfarezyyd.pharmacy.model.entity;
+package alfarezyyd.pharmacy.model.entity.option;
 
 import java.util.HashMap;
 import java.util.Map;

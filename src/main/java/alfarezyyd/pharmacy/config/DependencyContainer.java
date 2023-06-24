@@ -45,13 +45,15 @@ public class DependencyContainer {
     OrderRepository orderRepository = new OrderRepositoryImpl();
     orderUsecase = new OrderUsecaseImpl(customerRepository, orderMedicineUsecase, orderRepository, hikariDataSource);
 
-    // Employee
-    EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
-    employeeUsecase = new EmployeeUsecaseImpl(employeeRepository, hikariDataSource);
-
     // User
     UserRepository userRepository = new UserRepositoryImpl();
+    //Employee
+    EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
+    // User
     userUsecase = new UserUsecaseImpl(userRepository, hikariDataSource, employeeRepository);
+    // Employee
+    employeeUsecase = new EmployeeUsecaseImpl(employeeRepository, hikariDataSource, userRepository);
+
   }
 
 
