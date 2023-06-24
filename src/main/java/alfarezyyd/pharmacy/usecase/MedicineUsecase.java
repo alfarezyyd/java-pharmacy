@@ -9,7 +9,7 @@ import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import java.util.LinkedList;
 
 public interface MedicineUsecase {
-  LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError, String sortedBy);
+  LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError, String sortedBy, String algorithm);
 
   MedicineResponse getDetailMedicine(ServerError serverError, ClientError clientError, Long medicineId);
 

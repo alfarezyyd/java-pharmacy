@@ -46,7 +46,8 @@ public class MedicineController extends HttpServlet {
       }
     } else {
       String sortedBy = req.getParameter("sorted-by");
-      allMedicine = medicineUsecase.getAllMedicine(serverError, clientError, sortedBy);
+      String algorithm = req.getParameter("algorithm");
+      allMedicine = medicineUsecase.getAllMedicine(serverError, clientError, sortedBy, algorithm);
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;

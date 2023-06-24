@@ -46,7 +46,8 @@ public class EmployeeController extends HttpServlet {
       }
     } else {
       String sortedBy = req.getParameter("sorted-by");
-      allEmployee = employeeUsecase.getAllEmployee(serverError, clientError, sortedBy);
+      String algorithm = req.getParameter("algorithm");
+      allEmployee = employeeUsecase.getAllEmployee(serverError, clientError, sortedBy, algorithm);
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
       return;

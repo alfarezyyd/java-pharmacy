@@ -3,6 +3,7 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
+import alfarezyyd.pharmacy.helper.SortingHelper;
 import alfarezyyd.pharmacy.model.entity.Employee;
 import alfarezyyd.pharmacy.model.entity.User;
 import alfarezyyd.pharmacy.model.entity.option.Gender;
@@ -13,7 +14,6 @@ import alfarezyyd.pharmacy.repository.EmployeeRepository;
 import alfarezyyd.pharmacy.repository.UserRepository;
 import alfarezyyd.pharmacy.usecase.EmployeeUsecase;
 import alfarezyyd.pharmacy.util.SearchUtil;
-import alfarezyyd.pharmacy.util.SortingUtil;
 import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
@@ -23,7 +23,6 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -39,21 +38,13 @@ public class EmployeeUsecaseImpl implements EmployeeUsecase {
   }
 
   @Override
-  public LinkedList<EmployeeResponse> getAllEmployee(ServerError serverError, ClientError clientError, String sortedBy) {
+  public LinkedList<EmployeeResponse> getAllEmployee(ServerError serverError, ClientError clientError, String sortedBy, String algorithm) {
     LinkedList<EmployeeResponse> employeeResponses = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Employee> allEmployee = employeeRepository.getAllEmployee(connection);
       if (sortedBy != null) {
-        switch (sortedBy) {
-          case "full-name" -> SortingUtil.QuickSort.quickSort(allEmployee, Comparator.comparing(Employee::getFullName));
-          case "hire-date" -> SortingUtil.QuickSort.quickSort(allEmployee, Comparator.comparing(Employee::getHireDate));
-          case "created-at" ->
-              SortingUtil.QuickSort.quickSort(allEmployee, Comparator.comparing(Employee::getCreatedAt));
-          default -> {
-            clientError.addActionError("get all employee with sorted by " + sortedBy, "invalid! data employee can't sorted by " + sortedBy);
-            return null;
-          }
-        }
+        algorithm = algorithm == null ? "quick-sort" : algorithm;
+        SortingHelper.mappingEmployeeSorting(sortedBy, algorithm, clientError, allEmployee);
       }
       for (Employee employee : allEmployee) {
         employeeResponses.add(Model.convertToEmployeeResponse(employee, null));

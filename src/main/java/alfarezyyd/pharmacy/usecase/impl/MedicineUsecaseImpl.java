@@ -4,6 +4,7 @@ import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
+import alfarezyyd.pharmacy.helper.SortingHelper;
 import alfarezyyd.pharmacy.model.entity.Medicine;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineCreateRequest;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineUpdateRequest;
@@ -13,7 +14,6 @@ import alfarezyyd.pharmacy.repository.MedicineRepository;
 import alfarezyyd.pharmacy.usecase.MedicineInformationUsecase;
 import alfarezyyd.pharmacy.usecase.MedicineUsecase;
 import alfarezyyd.pharmacy.util.SearchUtil;
-import alfarezyyd.pharmacy.util.SortingUtil;
 import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
@@ -22,7 +22,6 @@ import jakarta.validation.ConstraintViolation;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -38,20 +37,13 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
   }
 
   @Override
-  public LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError, String sortedBy) {
+  public LinkedList<MedicineResponse> getAllMedicine(ServerError serverError, ClientError clientError, String sortedBy, String algorithm) {
     LinkedList<MedicineResponse> allMedicineResponse = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Medicine> allMedicine = medicineRepository.getAllMedicine(connection);
       if (sortedBy != null) {
-        switch (sortedBy) {
-          case "full-name" -> SortingUtil.QuickSort.quickSort(allMedicine, Comparator.comparing(Medicine::getFullName));
-          case "price" -> SortingUtil.QuickSort.quickSort(allMedicine, Comparator.comparing(Medicine::getPrice));
-          case "created-at" -> SortingUtil.QuickSort.quickSort(allMedicine, Comparator.comparing(Medicine::getCreatedAt));
-          default -> {
-            clientError.addActionError("get all medicine with sorted by " + sortedBy, "invalid! data medicine can't sorted by " + sortedBy);
-            return null;
-          }
-        }
+        algorithm = algorithm == null ? "quick-sort" : algorithm;
+        SortingHelper.mappingMedicineSorting(sortedBy, algorithm, clientError, allMedicine);
       }
       for (Medicine medicine : allMedicine) {
         MedicineResponse medicineResponse = Model.convertToMedicineResponse(medicine, null);

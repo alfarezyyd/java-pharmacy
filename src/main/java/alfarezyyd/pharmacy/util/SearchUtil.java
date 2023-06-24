@@ -26,7 +26,7 @@ public class SearchUtil {
 
   public static <T extends HasCustomerId> LinkedList<T> sequentialSearchByCustomerId(LinkedList<T> linkedListOfElement, Long customerId) {
     LinkedList<T> foundedElement = new LinkedList<>();
-    for (var element : linkedListOfElement) {
+    for (T element : linkedListOfElement) {
       if (element.getCustomerId().equals(customerId)) {
         foundedElement.add(element);
       }
@@ -36,7 +36,7 @@ public class SearchUtil {
 
 
   public static User sequentialSearchByEmail(LinkedList<User> linkedListOfUser, String userEmail) {
-    for (var user : linkedListOfUser) {
+    for (User user : linkedListOfUser) {
       if (user.getEmail().equals(userEmail)) {
         return user;
       }
@@ -45,7 +45,7 @@ public class SearchUtil {
   }
 
     public static User sequentialSearchByEmployeeId(LinkedList<User> linkedListOfUser, Long employeeId) {
-    for (var user : linkedListOfUser) {
+    for (User user : linkedListOfUser) {
       if (user.getEmployeeId().equals(employeeId)) {
         return user;
       }

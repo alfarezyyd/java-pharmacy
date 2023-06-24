@@ -39,7 +39,7 @@ public class OrderMedicineUsecaseImpl implements OrderMedicineUsecase {
       orderMedicine.setAllQuantity(orderMedicineRequest.getAllQuantity());
       orderMedicine.setAllTotalPrice(allTotalPrice);
       orderMedicineRepository.createOrderMedicine(connection, orderMedicine);
-      for (var price : allTotalPrice) {
+      for (Long price : allTotalPrice) {
         totalAmount += price;
       }
     } catch (SQLException e) {
@@ -64,7 +64,7 @@ public class OrderMedicineUsecaseImpl implements OrderMedicineUsecase {
       orderMedicine.setAllQuantity(orderMedicineRequest.getAllQuantity());
       orderMedicine.setAllTotalPrice(allTotalPrice);
       orderMedicineRepository.createOrderMedicine(connection, orderMedicine);
-      for (var price : allTotalPrice) {
+      for (Long price : allTotalPrice) {
         totalAmount += price;
       }
     } catch (SQLException e) {

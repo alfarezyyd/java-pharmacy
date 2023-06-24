@@ -47,10 +47,11 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
     LinkedList<CustomerResponse> customerResponses = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
-      if (sortedBy != null || algorithm != null) {
+      if (sortedBy != null) {
+        algorithm = algorithm == null ? "quick-sort" : algorithm;
         SortingHelper.mappingCustomerSorting(sortedBy, algorithm, clientError, allCustomer);
       }
-      for (var customer : allCustomer) {
+      for (Customer customer : allCustomer) {
         customerResponses.add(Model.convertToCustomerResponse(customer, null));
       }
     } catch (SQLException e) {

@@ -6,14 +6,14 @@ import java.util.List;
 public class SortingUtil {
   public static class QuickSort {
     public static <T> void quickSort(List<T> linkedList, Comparator<T> comparator) {
-      quickSortRecursive(linkedList, 0, linkedList.size() - 1, comparator);
+      quickSortLogic(linkedList, 0, linkedList.size() - 1, comparator);
     }
 
-    private static <T> void quickSortRecursive(List<T> linkedList, int low, int high, Comparator<T> comparator) {
+    private static <T> void quickSortLogic(List<T> linkedList, int low, int high, Comparator<T> comparator) {
       if (low < high) {
         int partitionIndex = partition(linkedList, low, high, comparator);
-        quickSortRecursive(linkedList, low, partitionIndex - 1, comparator);
-        quickSortRecursive(linkedList, partitionIndex + 1, high, comparator);
+        quickSortLogic(linkedList, low, partitionIndex - 1, comparator);
+        quickSortLogic(linkedList, partitionIndex + 1, high, comparator);
       }
     }
 
@@ -52,7 +52,23 @@ public class SortingUtil {
     }
   }
 
-  public static class BubbleSort {
+  public static class InsertionSort {
+    public static <T> void insertionSort(List<T> linkedList, Comparator<T> comparator) {
+      insertionSortLogic(linkedList, comparator);
+    }
+
+    private static <T> void insertionSortLogic(List<T> linkedList, Comparator<T> comparator) {
+      for (int i = 1; i < linkedList.size(); i++) {
+        T currentElement = linkedList.get(i);
+        int j = i - 1;
+        while (j >= 0 && comparator.compare(linkedList.get(j), currentElement) <= 0) {
+          linkedList.set((j + 1), linkedList.get(j));
+          j--;
+        }
+        // Swapping
+        linkedList.set(j + 1, currentElement);
+      }
+    }
 
   }
 
