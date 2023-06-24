@@ -33,6 +33,7 @@ public class DatabaseError extends SQLException {
     return "DatabaseError{" +
         "message='" + message + '\'' +
         ", errorCode=" + errorCode +
+        ", SQLState='" + SQLState + '\'' +
         '}';
   }
 

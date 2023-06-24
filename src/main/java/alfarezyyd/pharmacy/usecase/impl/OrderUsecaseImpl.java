@@ -13,6 +13,7 @@ import alfarezyyd.pharmacy.repository.CustomerRepository;
 import alfarezyyd.pharmacy.repository.OrderRepository;
 import alfarezyyd.pharmacy.usecase.OrderMedicineUsecase;
 import alfarezyyd.pharmacy.usecase.OrderUsecase;
+import alfarezyyd.pharmacy.util.SearchUtil;
 import alfarezyyd.pharmacy.util.StringUtil;
 import alfarezyyd.pharmacy.util.ValidationUtil;
 import com.zaxxer.hikari.HikariDataSource;
@@ -38,12 +39,17 @@ public class OrderUsecaseImpl implements OrderUsecase {
   }
 
   @Override
-  public LinkedList<OrderResponse> getAllOrderByCustomerId(ServerError serverError, Long customerId) {
+  public LinkedList<OrderResponse> getAllOrderByCustomerId(ServerError serverError, ClientError clientError, Long customerId) {
     LinkedList<OrderResponse> allOrderResponse = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
-      LinkedList<Order> allOrderByCustomerId = orderRepository.getAllOrderByCustomerId(connection, customerId);
-      for (var order : allOrderByCustomerId) {
-        allOrderResponse.add(Model.convertToOrderResponse(order));
+      LinkedList<Order> allOrder = orderRepository.getAllOrder(connection);
+      LinkedList<Order> foundedOrders = SearchUtil.sequentialSearchByCustomerId(allOrder, customerId);
+      if (foundedOrders.size() == 0) {
+        clientError.addActionError("find order", "order not found");
+        return null;
+      }
+      for (Order foundedOrder : foundedOrders) {
+        allOrderResponse.add(Model.convertToOrderResponse(foundedOrder));
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
@@ -64,20 +70,22 @@ public class OrderUsecaseImpl implements OrderUsecase {
     try (Connection connection = hikariDataSource.getConnection()) {
       Order order = new Order();
       connection.setAutoCommit(false);
-      Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, orderCreateRequest.getCustomerId());
-      if (isCustomerExists) {
-        order.setCustomerId(orderCreateRequest.getCustomerId());
-        order.setPaymentMethod(PaymentMethod.fromValue(orderCreateRequest.getPaymentMethod()));
-        order.setPaymentStatus(PaymentStatus.fromValue(orderCreateRequest.getPaymentStatus()));
-        order.setOrderStatus(OrderStatus.fromValue(orderCreateRequest.getOrderStatus()));
-        order.setShippingMethod(ShippingMethod.fromValue(orderCreateRequest.getShippingMethod()));
-        order.setTrackingNumber(orderCreateRequest.getTrackingNumber());
-        Long orderId = orderRepository.createOrder(connection, order);
-        Float totalAmount = orderMedicineUsecase.createOrderMedicine(connection, clientError, serverError, orderId, orderCreateRequest.getOrderMedicine());
-        Transaction.commitOrRollback(serverError, clientError, connection);
-        if (totalAmount != 0F) {
-          updateTotalAmount(serverError, totalAmount, orderId);
-        }
+      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      Customer customer = SearchUtil.binarySearch(allCustomer, orderCreateRequest.getCustomerId());
+      if (customer == null) {
+        clientError.addActionError("create order", "customer not found");
+      }
+      order.setCustomerId(orderCreateRequest.getCustomerId());
+      order.setPaymentMethod(PaymentMethod.fromValue(orderCreateRequest.getPaymentMethod()));
+      order.setPaymentStatus(PaymentStatus.fromValue(orderCreateRequest.getPaymentStatus()));
+      order.setOrderStatus(OrderStatus.fromValue(orderCreateRequest.getOrderStatus()));
+      order.setShippingMethod(ShippingMethod.fromValue(orderCreateRequest.getShippingMethod()));
+      order.setTrackingNumber(orderCreateRequest.getTrackingNumber());
+      Long orderId = orderRepository.createOrder(connection, order);
+      Float totalAmount = orderMedicineUsecase.createOrderMedicine(connection, clientError, serverError, orderId, orderCreateRequest.getOrderMedicine());
+      Transaction.commitOrRollback(serverError, clientError, connection);
+      if (totalAmount != 0F) {
+        updateTotalAmount(serverError, totalAmount, orderId);
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
@@ -98,42 +106,42 @@ public class OrderUsecaseImpl implements OrderUsecase {
 
     try (Connection connection = hikariDataSource.getConnection()) {
       connection.setAutoCommit(false);
-      Order order = new Order();
-      Boolean isOrderExists = orderRepository.checkOrderIfExists(connection, orderUpdateRequest.getId(), orderUpdateRequest.getCustomerId());
-      if (isOrderExists) {
-        order.setId(orderUpdateRequest.getId());
-        order.setCustomerId(orderUpdateRequest.getCustomerId());
-        order.setPaymentMethod(PaymentMethod.fromValue(orderUpdateRequest.getPaymentMethod()));
-        order.setPaymentStatus(PaymentStatus.fromValue(orderUpdateRequest.getPaymentStatus()));
-        order.setOrderStatus(OrderStatus.fromValue(orderUpdateRequest.getOrderStatus()));
-        order.setShippingMethod(ShippingMethod.fromValue(orderUpdateRequest.getShippingMethod()));
-        order.setTrackingNumber(orderUpdateRequest.getTrackingNumber());
-        order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        orderRepository.updateOrder(connection, order);
-        Float totalAmount = orderMedicineUsecase.updateOrderMedicine(connection, clientError, serverError, order.getId(), orderUpdateRequest.getOrderMedicine());
-        Transaction.commitOrRollback(serverError, clientError, connection);
-        if (totalAmount != 0F) {
-          updateTotalAmount(serverError, totalAmount, order.getId());
-        }
+
+      LinkedList<Order> allOrder = orderRepository.getAllOrder(connection);
+      Order order = SearchUtil.binarySearch(allOrder, orderUpdateRequest.getId());
+      if (order == null) {
+        clientError.addActionError("update order", "order not found");
+        return;
+      }
+      order.setPaymentMethod(PaymentMethod.fromValue(orderUpdateRequest.getPaymentMethod()));
+      order.setPaymentStatus(PaymentStatus.fromValue(orderUpdateRequest.getPaymentStatus()));
+      order.setOrderStatus(OrderStatus.fromValue(orderUpdateRequest.getOrderStatus()));
+      order.setShippingMethod(ShippingMethod.fromValue(orderUpdateRequest.getShippingMethod()));
+      order.setTrackingNumber(orderUpdateRequest.getTrackingNumber());
+      order.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+      orderRepository.updateOrder(connection, order);
+      Float totalAmount = orderMedicineUsecase.updateOrderMedicine(connection, clientError, serverError, order.getId(), orderUpdateRequest.getOrderMedicine());
+      Transaction.commitOrRollback(serverError, clientError, connection);
+      if (totalAmount != 0F) {
+        updateTotalAmount(serverError, totalAmount, order.getId());
       }
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 
   @Override
-  public void deleteOrder(ServerError serverError, ClientError clientError, Long orderId, Long customerId) {
+  public void deleteOrder(ServerError serverError, ClientError clientError, Long orderId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      if (orderRepository.checkOrderIfExists(connection, orderId, customerId)) {
-        orderMedicineUsecase.deleteOrderMedicine(connection, serverError, orderId);
-        orderRepository.deleteOrder(connection, orderId, customerId);
+      LinkedList<Order> allOrder = orderRepository.getAllOrder(connection);
+      Order order = SearchUtil.binarySearch(allOrder, orderId);
+      if (order == null) {
+        clientError.addActionError("delete order", "order not found");
       }
+      orderMedicineUsecase.deleteOrderMedicine(connection, serverError, orderId);
+      orderRepository.deleteOrder(connection, orderId);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 

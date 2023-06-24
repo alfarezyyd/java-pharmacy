@@ -78,6 +78,32 @@ public class Model {
     return orderResponse;
   }
 
+  public static EmployeeResponse convertToEmployeeResponse(Employee employee) {
+    EmployeeResponse employeeResponse = new EmployeeResponse();
+    employeeResponse.setId(employee.getId());
+    employeeResponse.setName(employee.getName());
+    employeeResponse.setGender(employee.getGender().getValue());
+    employeeResponse.setHireDate(employee.getHireDate().toString());
+    employeeResponse.setPosition(employee.getPosition());
+    employeeResponse.setStartDate(employee.getStartDate().toString());
+    employeeResponse.setEndDate(employee.getEndDate() != null ? employee.getEndDate().toString() : null);
+    employeeResponse.setCreatedAt(employee.getCreatedAt().toString());
+    employeeResponse.setUpdatedAt(employee.getUpdatedAt() != null ? employee.getUpdatedAt().toString() : null);
+    return employeeResponse;
+  }
+
+  public static UserResponse convertToUserResponse(User user) {
+    UserResponse userResponse = new UserResponse();
+    userResponse.setId(user.getId());
+    userResponse.setEmployeeId(user.getEmployeeId());
+    userResponse.setUsername(user.getUsername());
+    userResponse.setEmail(user.getEmail());
+    userResponse.setLastLogin(user.getLastLogin() != null ? user.getLastLogin().toString() : null);
+    userResponse.setCreatedAt(user.getCreatedAt().toString());
+    userResponse.setUpdatedAt(user.getUpdatedAt() != null ? user.getUpdatedAt().toString() : null);
+    return userResponse;
+  }
+
   public static LinkedList<Long> countTotalPrice(ClientError clientError, OrderMedicineRequest orderMedicineRequest, LinkedList<Medicine> allMedicine) {
     LinkedList<Long> allTotalPrice = new LinkedList<>();
     for (int i = 0; i < orderMedicineRequest.getAllMedicineId().size(); i++) {

@@ -1,7 +1,8 @@
 package alfarezyyd.pharmacy.util;
 
-import alfarezyyd.pharmacy.model.entity.Address;
+import alfarezyyd.pharmacy.model.entity.HasCustomerId;
 import alfarezyyd.pharmacy.model.entity.Identifiable;
+import alfarezyyd.pharmacy.model.entity.User;
 
 import java.util.LinkedList;
 
@@ -23,13 +24,23 @@ public class SearchUtil<T extends Identifiable> {
     return null;
   }
 
-  public static LinkedList<Address> sequentialSearchAddresses(LinkedList<Address> allAddress, Long customerId) {
-    LinkedList<Address> foundedAddress = new LinkedList<>();
-    for (var address : allAddress) {
-      if (address.getCustomerId().equals(customerId)) {
-        foundedAddress.add(address);
+  public static <T extends HasCustomerId> LinkedList<T> sequentialSearchByCustomerId(LinkedList<T> linkedListOfElement, Long customerId) {
+    LinkedList<T> foundedElement = new LinkedList<>();
+    for (var element : foundedElement) {
+      if (element.getCustomerId().equals(customerId)) {
+        foundedElement.add(element);
       }
     }
-    return foundedAddress;
+    return foundedElement;
+  }
+
+
+  public static User sequentialSearchByEmail(LinkedList<User> linkedListOfUser, String userEmail) {
+    for (var user : linkedListOfUser) {
+      if (user.getEmail().equals(userEmail)) {
+        return user;
+      }
+    }
+    return null;
   }
 }

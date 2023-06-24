@@ -10,6 +10,7 @@ import alfarezyyd.pharmacy.model.web.customer.CustomerUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
 import alfarezyyd.pharmacy.usecase.CustomerUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
+import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -47,7 +48,7 @@ public class CustomerController extends HttpServlet {
       allCustomer = customerUsecase.getAllCustomer(serverError);
     }
 
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, allCustomer);
@@ -57,9 +58,13 @@ public class CustomerController extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    CustomerCreateRequest customerCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerCreateRequest.class);
-    customerUsecase.createCustomer(serverError, clientError, customerCreateRequest);
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    try {
+      CustomerCreateRequest customerCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerCreateRequest.class);
+      customerUsecase.createCustomer(serverError, clientError, customerCreateRequest);
+    } catch (JsonParseException e) {
+      clientError.addActionError("create new customer", e.getOriginalMessage());
+    }
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -69,10 +74,13 @@ public class CustomerController extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    CustomerUpdateRequest customerUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerUpdateRequest.class);
-    customerUsecase.updateCustomer(serverError, clientError, customerUpdateRequest);
-
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    try {
+      CustomerUpdateRequest customerUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerUpdateRequest.class);
+      customerUsecase.updateCustomer(serverError, clientError, customerUpdateRequest);
+    } catch (JsonParseException e) {
+      clientError.addActionError("update customer", e.getOriginalMessage());
+    }
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -89,7 +97,7 @@ public class CustomerController extends HttpServlet {
     } catch (NumberFormatException e) {
       clientError.addActionError("delete customer!", "failed! query param {customer-id} not a number");
     }
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

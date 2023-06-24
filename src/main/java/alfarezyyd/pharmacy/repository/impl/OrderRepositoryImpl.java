@@ -10,13 +10,12 @@ import java.util.LinkedList;
 
 public class OrderRepositoryImpl implements OrderRepository {
   @Override
-  public LinkedList<Order> getAllOrderByCustomerId(Connection connection, Long customerId) throws DatabaseError {
+  public LinkedList<Order> getAllOrder(Connection connection) throws DatabaseError {
     String sqlSyntax = """
-        SELECT * FROM orders WHERE customer_id = ?
+        SELECT * FROM orders
         """;
     LinkedList<Order> allOrderByCustomer = new LinkedList<>();
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setLong(1, customerId);
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         Order order = new Order();
@@ -66,24 +65,6 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
   }
 
-  @Override
-  public Boolean checkOrderIfExists(Connection connection, Long orderId, Long customerId) throws DatabaseError, ActionError {
-    String sqlSyntax = """
-            SELECT * FROM orders WHERE id = ? AND customer_id=?;
-        """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setLong(1, orderId);
-      preparedStatement.setLong(2, customerId);
-      ResultSet resultSet = preparedStatement.executeQuery();
-      if (resultSet.next()) {
-        return true;
-      } else {
-        throw new ActionError("check order if exists", "failed! order doesn't exists");
-      }
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    }
-  }
 
   @Override
   public void updateOrder(Connection connection, Order order) throws DatabaseError {
@@ -106,13 +87,12 @@ public class OrderRepositoryImpl implements OrderRepository {
 
 
   @Override
-  public void deleteOrder(Connection connection, Long orderId, Long customerId) throws DatabaseError {
+  public void deleteOrder(Connection connection, Long orderId) throws DatabaseError {
     String sqlSyntax = """
-        DELETE FROM orders WHERE id=? AND customer_id=?
+        DELETE FROM orders WHERE id=?
         """;
     try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, orderId);
-      preparedStatement.setLong(2, customerId);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());

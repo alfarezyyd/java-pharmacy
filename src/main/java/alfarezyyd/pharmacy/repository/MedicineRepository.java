@@ -11,7 +11,6 @@ public interface MedicineRepository {
 
   LinkedList<Medicine> getAllMedicine(Connection connection) throws DatabaseError;
 
-  Boolean checkIfMedicineExists(Connection connection, Long medicineId) throws DatabaseError, ActionError;
 
   Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError, ActionError;
 

@@ -9,14 +9,14 @@ import alfarezyyd.pharmacy.model.web.response.OrderResponse;
 import java.util.LinkedList;
 
 public interface OrderUsecase {
-  LinkedList<OrderResponse> getAllOrderByCustomerId(ServerError serverError, Long customerId);
+  LinkedList<OrderResponse> getAllOrderByCustomerId(ServerError serverError, ClientError clientError, Long customerId);
 
   void createOrder(ServerError serverError, ClientError clientError, OrderCreateRequest orderCreateRequest);
 
   void updateOrder(ServerError serverError, ClientError clientError, OrderUpdateRequest orderUpdateRequest);
 
 
-  void deleteOrder(ServerError serverError, ClientError clientError, Long orderId, Long customerId);
+  void deleteOrder(ServerError serverError, ClientError clientError, Long orderId);
 
   void updateTotalAmount(ServerError serverError, Float totalAmount, Long orderId);
 }

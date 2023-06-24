@@ -13,9 +13,6 @@ public class OrderUpdateRequest {
   @NotNull
   private Long id;
   @NotNull
-  @JsonProperty("customer_id")
-  private Long customerId;
-  @NotNull
   @ValidPaymentMethodConstraint
   @JsonProperty("payment_method")
   private String paymentMethod;
@@ -41,11 +38,6 @@ public class OrderUpdateRequest {
   public Long getId() {
     return id;
   }
-
-  public Long getCustomerId() {
-    return customerId;
-  }
-
 
   public String getString() {
     return paymentMethod;

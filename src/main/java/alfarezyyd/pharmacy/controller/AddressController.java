@@ -8,6 +8,7 @@ import alfarezyyd.pharmacy.model.web.address.AddressCreateRequest;
 import alfarezyyd.pharmacy.model.web.address.AddressUpdateRequest;
 import alfarezyyd.pharmacy.usecase.AddressUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
+import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,16 +31,18 @@ public class AddressController extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    AddressCreateRequest addressCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), AddressCreateRequest.class);
-    String customerId = req.getParameter("customer-id");
     try {
+      AddressCreateRequest addressCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), AddressCreateRequest.class);
+      String customerId = req.getParameter("customer-id");
       Long customerIdLong = Long.valueOf(customerId);
       addressUsecase.createAddress(serverError, clientError, addressCreateRequest, customerIdLong);
     } catch (NumberFormatException e) {
       clientError.addActionError("create new address", "invalid! query param {customer-id} must number");
+    } catch (JsonParseException e) {
+      clientError.addActionError("create new address", e.getOriginalMessage());
     }
 
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -49,9 +52,13 @@ public class AddressController extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    AddressUpdateRequest addressUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), AddressUpdateRequest.class);
-    addressUsecase.updateAddress(serverError, clientError, addressUpdateRequest);
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    try {
+      AddressUpdateRequest addressUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), AddressUpdateRequest.class);
+      addressUsecase.updateAddress(serverError, clientError, addressUpdateRequest);
+    } catch (JsonParseException e) {
+      clientError.addActionError("update address", e.getOriginalMessage());
+    }
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -70,7 +77,7 @@ public class AddressController extends HttpServlet {
     } catch (NumberFormatException e) {
       clientError.addActionError("delete address", "invalid! query param {address-id} and {customer-id} must a number");
     }
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

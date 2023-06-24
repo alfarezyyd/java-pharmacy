@@ -105,20 +105,19 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
       return;
     }
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isMedicineExists = medicineRepository.checkIfMedicineExists(connection, medicineUpdateRequest.getId());
-      if (isMedicineExists) {
-        Medicine medicine = new Medicine();
-        medicine.setId(medicineUpdateRequest.getId());
-        medicine.setName(medicineUpdateRequest.getName());
-        medicine.setBrand(medicineUpdateRequest.getBrand());
-        medicine.setPrice(medicineUpdateRequest.getPrice());
-        medicine.setStock(medicineUpdateRequest.getStock());
-        medicine.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        medicineRepository.updateMedicine(connection, medicine);
-        medicineInformationUsecase.updateMedicineInformation(serverError, clientError, medicineUpdateRequest.getMedicineInformationCreateRequest(), medicine.getId());
+      LinkedList<Medicine> allMedicine = medicineRepository.getAllMedicine(connection);
+      Medicine medicine = SearchUtil.binarySearch(allMedicine, medicineUpdateRequest.getId());
+      if (medicine == null) {
+        clientError.addActionError("update medicine", "medicine not found");
+        return;
       }
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
+      medicine.setName(medicineUpdateRequest.getName());
+      medicine.setBrand(medicineUpdateRequest.getBrand());
+      medicine.setPrice(medicineUpdateRequest.getPrice());
+      medicine.setStock(medicineUpdateRequest.getStock());
+      medicine.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+      medicineRepository.updateMedicine(connection, medicine);
+      medicineInformationUsecase.updateMedicineInformation(serverError, clientError, medicineUpdateRequest.getMedicineInformationCreateRequest(), medicine.getId());
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
@@ -127,15 +126,16 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
   @Override
   public void deleteMedicine(ServerError serverError, ClientError clientError, Long medicineId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isMedicineExists = medicineRepository.checkIfMedicineExists(connection, medicineId);
-      if (isMedicineExists) {
-        medicineInformationUsecase.deleteMedicineInformation(serverError, clientError, medicineId);
-        medicineRepository.deleteMedicine(connection, medicineId);
+      LinkedList<Medicine> allMedicine = medicineRepository.getAllMedicine(connection);
+      Medicine medicine = SearchUtil.binarySearch(allMedicine, medicineId);
+      if (medicine == null) {
+        clientError.addActionError("delete medicine", "medicine not found");
       }
+      medicineInformationUsecase.deleteMedicineInformation(serverError, clientError, medicineId);
+      medicineRepository.deleteMedicine(connection, medicineId);
+
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 }

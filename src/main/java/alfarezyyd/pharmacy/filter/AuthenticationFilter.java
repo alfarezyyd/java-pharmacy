@@ -3,6 +3,7 @@ package alfarezyyd.pharmacy.filter;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,15 +12,16 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashMap;
 
+@WebFilter
 public class AuthenticationFilter extends HttpFilter {
   @Override
   protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-    if (request.getRequestURI().equals("/api/login")) {
+    if (request.getRequestURI().equals("/api/authentication/login")) {
       chain.doFilter(request, response);
     } else {
       HttpSession httpSession = request.getSession(true);
-      String username = (String) httpSession.getAttribute("username");
-      if (username == null) {
+      String email = (String) httpSession.getAttribute("email");
+      if (email == null) {
         response.setStatus(401);
         response.getWriter().println();
         response.setHeader("Content-Type", "application/json");

@@ -9,6 +9,7 @@ import alfarezyyd.pharmacy.model.web.medicine.MedicineUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import alfarezyyd.pharmacy.usecase.MedicineUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
+import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -45,7 +46,7 @@ public class MedicineController extends HttpServlet {
     } else {
       allMedicine = medicineUsecase.getAllMedicine(serverError, clientError);
     }
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, allMedicine);
@@ -55,9 +56,13 @@ public class MedicineController extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    MedicineCreateRequest medicineCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineCreateRequest.class);
-    medicineUsecase.createMedicine(serverError, clientError, medicineCreateRequest);
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    try {
+      MedicineCreateRequest medicineCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineCreateRequest.class);
+      medicineUsecase.createMedicine(serverError, clientError, medicineCreateRequest);
+    } catch (JsonParseException e) {
+      clientError.addActionError("create medicine", e.getOriginalMessage());
+    }
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);
@@ -67,9 +72,13 @@ public class MedicineController extends HttpServlet {
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
-    MedicineUpdateRequest medicineUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineUpdateRequest.class);
-    medicineUsecase.updateMedicine(serverError, clientError, medicineUpdateRequest);
-    if (ExceptionCheck.exceptionCheck(serverError, clientError, resp)) {
+    try {
+      MedicineUpdateRequest medicineUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineUpdateRequest.class);
+      medicineUsecase.updateMedicine(serverError, clientError, medicineUpdateRequest);
+    } catch (JsonParseException e) {
+      clientError.addActionError("update medicine", e.getOriginalMessage());
+    }
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

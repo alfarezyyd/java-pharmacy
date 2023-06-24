@@ -1,6 +1,5 @@
 package alfarezyyd.pharmacy.usecase.impl;
 
-import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
@@ -90,24 +89,23 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
     }
 
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isMedicineInformationExists = medicineInformationRepository.checkIfMedicineInformationExists(connection, medicineId);
-      if (isMedicineInformationExists) {
-        MedicineInformation medicineInformation = new MedicineInformation();
-        medicineInformation.setId(medicineId);
-        medicineInformation.setDosageForm(DosageForm.fromValue(medicineInformationUpdateRequest.getDosageForm()));
-        medicineInformation.setStrength(medicineInformationUpdateRequest.getStrength());
-        medicineInformation.setIndications(medicineInformationUpdateRequest.getIndications());
-        medicineInformation.setContraindications(medicineInformationUpdateRequest.getContraindications());
-        medicineInformation.setSideEffects(medicineInformationUpdateRequest.getSideEffects());
-        medicineInformation.setPrecautions(medicineInformationUpdateRequest.getPrecautions());
-        medicineInformation.setStorageConditions(medicineInformationUpdateRequest.getStorageConditions());
-        medicineInformation.setDescription(medicineInformationUpdateRequest.getDescription());
-        medicineInformation.setExpiryDate(Date.valueOf(medicineInformationUpdateRequest.getExpiryDate()));
-        medicineInformation.setCountryOfOrigin(medicineInformationUpdateRequest.getCountryOfOrigin());
-        medicineInformationRepository.updateMedicineInformation(connection, medicineInformation);
+      LinkedList<MedicineInformation> allMedicineInformation = medicineInformationRepository.getAllMedicineInformation(connection, medicineId);
+      MedicineInformation medicineInformation = SearchUtil.binarySearch(allMedicineInformation, medicineId);
+      if (medicineInformation == null) {
+        clientError.addActionError("update medicine information", "medicine information not found");
+        return;
       }
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
+      medicineInformation.setDosageForm(DosageForm.fromValue(medicineInformationUpdateRequest.getDosageForm()));
+      medicineInformation.setStrength(medicineInformationUpdateRequest.getStrength());
+      medicineInformation.setIndications(medicineInformationUpdateRequest.getIndications());
+      medicineInformation.setContraindications(medicineInformationUpdateRequest.getContraindications());
+      medicineInformation.setSideEffects(medicineInformationUpdateRequest.getSideEffects());
+      medicineInformation.setPrecautions(medicineInformationUpdateRequest.getPrecautions());
+      medicineInformation.setStorageConditions(medicineInformationUpdateRequest.getStorageConditions());
+      medicineInformation.setDescription(medicineInformationUpdateRequest.getDescription());
+      medicineInformation.setExpiryDate(Date.valueOf(medicineInformationUpdateRequest.getExpiryDate()));
+      medicineInformation.setCountryOfOrigin(medicineInformationUpdateRequest.getCountryOfOrigin());
+      medicineInformationRepository.updateMedicineInformation(connection, medicineInformation);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
@@ -116,12 +114,13 @@ public class MedicineInformationUsecaseImpl implements MedicineInformationUsecas
   @Override
   public void deleteMedicineInformation(ServerError serverError, ClientError clientError, Long medicineInformationId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isMedicineInformationExists = medicineInformationRepository.checkIfMedicineInformationExists(connection, medicineInformationId);
-      if (isMedicineInformationExists != null) {
-        medicineInformationRepository.deleteMedicineInformation(connection, medicineInformationId);
+      LinkedList<MedicineInformation> allMedicineInformation = medicineInformationRepository.getAllMedicineInformation(connection, medicineInformationId);
+      MedicineInformation medicineInformation = SearchUtil.binarySearch(allMedicineInformation, medicineInformationId);
+      if (medicineInformation == null) {
+        clientError.addActionError("delete medicine information", "medicine information not found");
+        return;
       }
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
+      medicineInformationRepository.deleteMedicineInformation(connection, medicineInformationId);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }

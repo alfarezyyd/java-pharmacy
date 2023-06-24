@@ -14,6 +14,8 @@ public class DependencyContainer {
   private final AddressUsecase addressUsecase;
   private final MedicineUsecase medicineUsecase;
   private final OrderUsecase orderUsecase;
+  private final EmployeeUsecase employeeUsecase;
+  private final UserUsecase userUsecase;
 
   private DependencyContainer() {
     // Data Source
@@ -27,9 +29,6 @@ public class DependencyContainer {
     addressUsecase = new AddressUsecaseImpl(addressRepository, hikariDataSource, customerRepository);
     customerUsecase = new CustomerUsecaseImpl(customerRepository, addressUsecase, addressRepository, hikariDataSource);
 
-
-
-
     // Medicine Information
     MedicineInformationRepository medicineInformationRepository = new MedicineInformationRepositoryImpl();
     MedicineInformationUsecase medicineInformationUsecase = new MedicineInformationUsecaseImpl(medicineInformationRepository, hikariDataSource);
@@ -41,9 +40,18 @@ public class DependencyContainer {
     // OrderMedicine
     OrderMedicineRepository orderMedicineRepository = new OrderMedicineRepositoryImpl();
     OrderMedicineUsecase orderMedicineUsecase = new OrderMedicineUsecaseImpl(orderMedicineRepository, medicineRepository);
+
     // Order
     OrderRepository orderRepository = new OrderRepositoryImpl();
     orderUsecase = new OrderUsecaseImpl(customerRepository, orderMedicineUsecase, orderRepository, hikariDataSource);
+
+    // Employee
+    EmployeeRepository employeeRepository = new EmployeeRepositoryImpl();
+    employeeUsecase = new EmployeeUsecaseImpl(employeeRepository, hikariDataSource);
+
+    // User
+    UserRepository userRepository = new UserRepositoryImpl();
+    userUsecase = new UserUsecaseImpl(userRepository, hikariDataSource, employeeRepository);
   }
 
 
@@ -68,5 +76,13 @@ public class DependencyContainer {
 
   public OrderUsecase getOrderUsecase() {
     return orderUsecase;
+  }
+
+  public EmployeeUsecase getEmployeeUsecase() {
+    return employeeUsecase;
+  }
+
+  public UserUsecase getUserUsecase() {
+    return userUsecase;
   }
 }

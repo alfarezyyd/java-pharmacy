@@ -34,7 +34,7 @@ public class AddressUsecaseImpl implements AddressUsecase {
     LinkedList<AddressResponse> addressResponse = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Address> allAddress = addressRepository.getAllAddress(connection);
-      LinkedList<Address> foundedAddresses = SearchUtil.sequentialSearchAddresses(allAddress, customerId);
+      LinkedList<Address> foundedAddresses = SearchUtil.sequentialSearchByCustomerId(allAddress, customerId);
       if (foundedAddresses.size() == 0) {
         clientError.addActionError("find address", "address not found");
         return null;

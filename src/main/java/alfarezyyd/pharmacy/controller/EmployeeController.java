@@ -4,10 +4,10 @@ import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.ExceptionCheck;
 import alfarezyyd.pharmacy.helper.ResponseWriter;
-import alfarezyyd.pharmacy.model.web.order.OrderCreateRequest;
-import alfarezyyd.pharmacy.model.web.order.OrderUpdateRequest;
-import alfarezyyd.pharmacy.model.web.response.OrderResponse;
-import alfarezyyd.pharmacy.usecase.OrderUsecase;
+import alfarezyyd.pharmacy.model.web.employee.EmployeeCreateRequest;
+import alfarezyyd.pharmacy.model.web.employee.EmployeeUpdateRequest;
+import alfarezyyd.pharmacy.model.web.response.EmployeeResponse;
+import alfarezyyd.pharmacy.usecase.EmployeeUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
 import jakarta.servlet.ServletConfig;
@@ -20,31 +20,36 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 
-@WebServlet(urlPatterns = "/api/orders")
-public class OrderController extends HttpServlet {
-  private OrderUsecase orderUsecase;
+@WebServlet(urlPatterns = "/api/employees/*")
+public class EmployeeController extends HttpServlet {
+  private EmployeeUsecase employeeUsecase;
 
   @Override
   public void init(ServletConfig config) throws ServletException {
-    orderUsecase = (OrderUsecase) config.getServletContext().getAttribute("orderUsecase");
+    employeeUsecase = (EmployeeUsecase) config.getServletContext().getAttribute("employeeUsecase");
   }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    LinkedList<OrderResponse> allOrderByCustomerId = new LinkedList<>();
-    String customerId = req.getParameter("customer-id");
-    try {
-      Long customerIdLong = Long.valueOf(customerId);
-      allOrderByCustomerId = orderUsecase.getAllOrderByCustomerId(serverError, clientError, customerIdLong);
-    } catch (NumberFormatException e) {
-      clientError.addActionError("get all order by customer", "invalid! query param {customer-id} must number");
+    String pathInfo = req.getPathInfo();
+    LinkedList<EmployeeResponse> allEmployee = new LinkedList<>();
+    if (pathInfo != null && pathInfo.equals("/details")) {
+      try {
+        String employeeId = req.getParameter("employee-id");
+        Long employeeIdLong = Long.valueOf(employeeId);
+        allEmployee.add(employeeUsecase.getDetailEmployee(serverError, clientError, employeeIdLong));
+      } catch (NumberFormatException e) {
+        clientError.addActionError("get detail employee", "failed! query param {employee-id} not a number");
+      }
+    } else {
+      allEmployee = employeeUsecase.getAllEmployee(serverError);
     }
     if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
     }
-    ResponseWriter.writeToResponseBodySuccess(resp, allOrderByCustomerId);
+    ResponseWriter.writeToResponseBodySuccess(resp, allEmployee);
   }
 
   @Override
@@ -52,10 +57,10 @@ public class OrderController extends HttpServlet {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
     try {
-      OrderCreateRequest orderCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderCreateRequest.class);
-      orderUsecase.createOrder(serverError, clientError, orderCreateRequest);
+      EmployeeCreateRequest employeeCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), EmployeeCreateRequest.class);
+      employeeUsecase.createEmployee(serverError, clientError, employeeCreateRequest);
     } catch (JsonParseException e) {
-      clientError.addActionError("create order", e.getOriginalMessage());
+      clientError.addActionError("create new employee", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
@@ -68,10 +73,10 @@ public class OrderController extends HttpServlet {
     ClientError clientError = new ClientError();
     ServerError serverError = new ServerError();
     try {
-      OrderUpdateRequest orderUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), OrderUpdateRequest.class);
-      orderUsecase.updateOrder(serverError, clientError, orderUpdateRequest);
+      EmployeeUpdateRequest employeeUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), EmployeeUpdateRequest.class);
+      employeeUsecase.updateEmployee(serverError, clientError, employeeUpdateRequest);
     } catch (JsonParseException e) {
-      clientError.addActionError("update order", e.getOriginalMessage());
+      clientError.addActionError("update employee", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
       return;
@@ -81,16 +86,17 @@ public class OrderController extends HttpServlet {
 
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    ServerError serverError = new ServerError();
     ClientError clientError = new ClientError();
-    String orderId = req.getParameter("order-id");
+    ServerError serverError = new ServerError();
     try {
-      Long orderIdLong = Long.parseLong(orderId);
-      orderUsecase.deleteOrder(serverError, clientError, orderIdLong);
+      String employeeId = req.getParameter("employee-id");
+      Long employeeIdLong = Long.valueOf(employeeId);
+      employeeUsecase.deleteEmployee(serverError, clientError, employeeIdLong);
     } catch (NumberFormatException e) {
-      clientError.addActionError("delete order", "invalid! query param {order-id}  must number");
+      clientError.addActionError("delete employee", "invalid! query param {employee-id} must number");
     }
-    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)) {
+
+    if (ExceptionCheck.isExceptionOccured(serverError, clientError, resp)){
       return;
     }
     ResponseWriter.writeToResponseBodySuccess(resp, null);

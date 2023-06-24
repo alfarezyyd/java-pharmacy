@@ -108,36 +108,37 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       }
     }
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, customerUpdateRequest.getId());
-      if (isCustomerExists) {
-        Customer customer = new Customer();
-        customer.setId(customerUpdateRequest.getId());
-        customer.setFullName(customerUpdateRequest.getFullName());
-        customer.setDateOfBirth(LocalDate.parse(customerUpdateRequest.getDateOfBirth()));
-        customer.setGender(Gender.fromValue(customerUpdateRequest.getGender()));
-        customer.setPhone(customerUpdateRequest.getPhone());
-        customer.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        customerRepository.updateCustomer(connection, customer);
+      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      Customer customer = SearchUtil.binarySearch(allCustomer, customerUpdateRequest.getId());
+      if (customer == null) {
+        clientError.addActionError("update customer", "customer not found");
+        return;
       }
+      customer.setFullName(customerUpdateRequest.getFullName());
+      customer.setDateOfBirth(LocalDate.parse(customerUpdateRequest.getDateOfBirth()));
+      customer.setGender(Gender.fromValue(customerUpdateRequest.getGender()));
+      customer.setPhone(customerUpdateRequest.getPhone());
+      customer.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+      customerRepository.updateCustomer(connection, customer);
+
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 
   @Override
   public void deleteCustomer(ServerError serverError, ClientError clientError, Long customerId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      Boolean isCustomerExists = customerRepository.checkIfCustomerExists(connection, customerId);
-      if (isCustomerExists) {
-        addressRepository.deleteAllCustomerAddress(connection, customerId);
-        customerRepository.deleteCustomer(connection, customerId);
+      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      Customer customer = SearchUtil.binarySearch(allCustomer, customerId);
+      if (customer == null) {
+        clientError.addActionError("delete customer", "customer not found");
+        return;
       }
+      addressRepository.deleteAllCustomerAddress(connection, customerId);
+      customerRepository.deleteCustomer(connection, customerId);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    } catch (ActionError e) {
-      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 }

@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class User implements Identifiable {
   private Long id;
-  private Long customerId;
+  private Long employeeId;
   private String username;
   private String email;
   private String password;
@@ -21,12 +21,12 @@ public class User implements Identifiable {
     this.id = id;
   }
 
-  public Long getCustomerId() {
-    return customerId;
+  public Long getEmployeeId() {
+    return employeeId;
   }
 
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
+  public void setEmployeeId(Long employeeId) {
+    this.employeeId = employeeId;
   }
 
   public String getUsername() {
@@ -86,7 +86,7 @@ public class User implements Identifiable {
     User user = (User) o;
 
     if (!id.equals(user.id)) return false;
-    if (!customerId.equals(user.customerId)) return false;
+    if (!employeeId.equals(user.employeeId)) return false;
     if (!username.equals(user.username)) return false;
     if (!email.equals(user.email)) return false;
     if (!password.equals(user.password)) return false;
@@ -98,7 +98,7 @@ public class User implements Identifiable {
   @Override
   public int hashCode() {
     int result = id.hashCode();
-    result = 31 * result + customerId.hashCode();
+    result = 31 * result + employeeId.hashCode();
     result = 31 * result + username.hashCode();
     result = 31 * result + email.hashCode();
     result = 31 * result + password.hashCode();
@@ -112,7 +112,7 @@ public class User implements Identifiable {
   public String toString() {
     return "User{" +
         "id=" + id +
-        ", customerId=" + customerId +
+        ", employeeId=" + employeeId +
         ", username='" + username + '\'' +
         ", email='" + email + '\'' +
         ", password='" + password + '\'' +

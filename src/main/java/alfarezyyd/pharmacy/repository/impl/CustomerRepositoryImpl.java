@@ -10,25 +10,6 @@ import java.sql.*;
 import java.util.LinkedList;
 
 public class CustomerRepositoryImpl implements CustomerRepository {
-  @Override
-  public Boolean checkIfCustomerExists(Connection connection, Long customerId) throws DatabaseError, ActionError {
-    String sqlSyntax = """
-        SELECT * FROM customers WHERE id = ?
-        """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setLong(1, customerId);
-      ResultSet resultSet = preparedStatement.executeQuery();
-      boolean resultSetNext = resultSet.next();
-      resultSet.close();
-      if (resultSetNext) {
-        return true;
-      } else {
-        throw new ActionError("check if customer exists", "customer not found");
-      }
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    }
-  }
 
   @Override
   public LinkedList<Customer> getAllCustomer(Connection connection) throws DatabaseError {
@@ -36,8 +17,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
          SELECT * FROM customers;
         """;
     LinkedList<Customer> allCustomer = new LinkedList<>();
-    try (Statement statement = connection.createStatement();
-         ResultSet resultSet = statement.executeQuery(sqlSyntax)) {
+
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
+         ResultSet resultSet = preparedStatement.executeQuery(sqlSyntax)) {
       while (resultSet.next()) {
         Customer customer = new Customer();
         customer.setId(resultSet.getLong("id"));
@@ -71,6 +53,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
       if (resultSet.next()) {
         customerId = resultSet.getLong(1);
       } else {
+        resultSet.close();
         throw new ActionError("create customer", "create customer failed");
       }
       resultSet.close();

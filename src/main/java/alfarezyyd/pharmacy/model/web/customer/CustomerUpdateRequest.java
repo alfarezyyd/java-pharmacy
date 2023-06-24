@@ -22,6 +22,7 @@ public class CustomerUpdateRequest {
   @ValidGenderConstraint
   private String gender;
   @NotBlank
+  @Size(max = 20)
   private String phone;
 
   public Long getId() {

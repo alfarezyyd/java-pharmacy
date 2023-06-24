@@ -24,6 +24,7 @@ public class CustomerCreateRequest {
   @ValidGenderConstraint
   private String gender;
   @NotBlank
+  @Size(max = 20)
   private String phone;
 
   public AddressCreateRequest getAddressCreateRequest() {

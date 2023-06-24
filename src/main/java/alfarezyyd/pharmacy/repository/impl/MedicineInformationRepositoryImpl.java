@@ -1,6 +1,5 @@
 package alfarezyyd.pharmacy.repository.impl;
 
-import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.DosageForm;
 import alfarezyyd.pharmacy.model.entity.MedicineInformation;
@@ -42,26 +41,6 @@ public class MedicineInformationRepositoryImpl implements MedicineInformationRep
     return allMedicineInformation;
   }
 
-  @Override
-  public Boolean checkIfMedicineInformationExists(Connection connection, Long id) throws DatabaseError, ActionError {
-    String sqlSyntax = """
-        SELECT * FROM medicines_information WHERE id=?
-        """;
-
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
-         ResultSet resultSet = preparedStatement.executeQuery()) {
-      preparedStatement.setLong(1, id);
-      boolean resultSetNext = resultSet.next();
-      resultSet.close();
-      if (resultSetNext) {
-        return true;
-      } else {
-        throw new ActionError("check if medicine information exists", "medicine information not found");
-      }
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    }
-  }
 
   @Override
   public void createMedicineInformation(Connection connection, MedicineInformation medicineInformation) throws DatabaseError {

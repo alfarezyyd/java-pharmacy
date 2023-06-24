@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 public class ExceptionCheck {
-  public static Boolean exceptionCheck(ServerError serverError, ClientError clientError, HttpServletResponse resp) {
+  public static Boolean isExceptionOccured(ServerError serverError, ClientError clientError, HttpServletResponse resp) {
     if (clientError.hasErrors()) {
       ResponseWriter.writeToResponseBodyClientError(resp, clientError);
       return true;

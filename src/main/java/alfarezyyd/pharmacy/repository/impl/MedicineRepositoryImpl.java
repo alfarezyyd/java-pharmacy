@@ -15,8 +15,8 @@ public class MedicineRepositoryImpl implements MedicineRepository {
         SELECT * FROM medicines
         """;
     LinkedList<Medicine> allMedicine = new LinkedList<>();
-    try (Statement statement = connection.createStatement();
-         ResultSet resultSet = statement.executeQuery(sqlSyntax)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax);
+         ResultSet resultSet = preparedStatement.executeQuery(sqlSyntax)) {
       while (resultSet.next()) {
         Medicine medicine = new Medicine();
         medicine.setId(resultSet.getLong("id"));
@@ -34,26 +34,6 @@ public class MedicineRepositoryImpl implements MedicineRepository {
     return allMedicine;
   }
 
-  @Override
-  public Boolean checkIfMedicineExists(Connection connection, Long medicineId) throws DatabaseError, ActionError {
-    String sqlSyntax = """
-        SELECT * FROM medicines WHERE id = ?
-        """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
-      preparedStatement.setLong(1, medicineId);
-      ResultSet resultSet = preparedStatement.executeQuery();
-      boolean resultSetNext = resultSet.next();
-      resultSet.close();
-      if (resultSetNext) {
-        return true;
-      } else {
-        throw new ActionError("check if medicine exists", "medicine not found");
-      }
-    } catch (SQLException e) {
-      throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
-    }
-
-  }
 
   @Override
   public Long createMedicine(Connection connection, Medicine medicine) throws DatabaseError, ActionError {
@@ -71,6 +51,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       if (resultSet.next()) {
         generatedKeys = resultSet.getLong(1);
       } else {
+        resultSet.close();
         throw new ActionError("create medicine", "create medicine failed");
       }
       resultSet.close();

@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.model.entity;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-public class Address implements Identifiable {
+public class Address implements Identifiable, HasCustomerId {
   private Long id;
   private Long customerId;
   private String street;
