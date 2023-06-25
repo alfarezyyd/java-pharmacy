@@ -11,11 +11,6 @@ public class ValidShippingMethodValidator implements ConstraintValidator<ValidSh
     if (value == null) {
       return true;
     }
-    try {
-      ShippingMethod.fromValue(value);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
+    return ShippingMethod.fromValue(value) != null;
   }
 }

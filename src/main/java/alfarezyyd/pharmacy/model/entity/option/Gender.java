@@ -8,15 +8,16 @@ public enum Gender {
   private final String value;
   private static final Map<String, Gender> mappingGender = new HashMap<>();
 
+  Gender(String value) {
+    this.value = value;
+  }
+
   static {
     for (Gender gender : values()) {
       mappingGender.put(gender.value, gender);
     }
   }
 
-  Gender(String value) {
-    this.value = value;
-  }
 
   public String getValue() {
     return value;

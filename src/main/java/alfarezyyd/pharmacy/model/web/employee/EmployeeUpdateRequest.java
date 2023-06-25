@@ -2,6 +2,7 @@ package alfarezyyd.pharmacy.model.web.employee;
 
 import alfarezyyd.pharmacy.constraint.ValidDateConstraint;
 import alfarezyyd.pharmacy.constraint.ValidGenderConstraint;
+import alfarezyyd.pharmacy.constraint.ValidPositionConstraint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +23,7 @@ public class EmployeeUpdateRequest {
   @JsonProperty("hire_date")
   private String hireDate;
   @NotBlank
-  @Size(max = 100)
+  @ValidPositionConstraint
   private String position;
   @NotBlank
   @ValidDateConstraint

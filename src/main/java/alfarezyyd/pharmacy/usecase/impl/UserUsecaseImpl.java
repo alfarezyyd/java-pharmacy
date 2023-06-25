@@ -7,6 +7,7 @@ import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.helper.Transaction;
 import alfarezyyd.pharmacy.model.entity.Employee;
 import alfarezyyd.pharmacy.model.entity.User;
+import alfarezyyd.pharmacy.model.entity.option.Position;
 import alfarezyyd.pharmacy.model.web.authentication.LoginRequest;
 import alfarezyyd.pharmacy.model.web.response.UserResponse;
 import alfarezyyd.pharmacy.model.web.user.UserCreateRequest;
@@ -137,7 +138,7 @@ public class UserUsecaseImpl implements UserUsecase {
   }
 
   @Override
-  public String userLogin(ServerError serverError, ClientError clientError, LoginRequest loginRequest) {
+  public Position userLogin(ServerError serverError, ClientError clientError, LoginRequest loginRequest) {
     Set<ConstraintViolation<LoginRequest>> constraintViolations = ValidationUtil.getValidator().validate(loginRequest);
     if (!constraintViolations.isEmpty()) {
       for (ConstraintViolation<LoginRequest> constraintViolation : constraintViolations) {
@@ -145,7 +146,7 @@ public class UserUsecaseImpl implements UserUsecase {
         clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
     }
-    String employeePosition = null;
+    Position employeePosition = null;
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<User> allUser = userRepository.getAllUser(connection);
       User user = SearchUtil.sequentialSearchByEmail(allUser, loginRequest.getEmail());

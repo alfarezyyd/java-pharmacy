@@ -11,11 +11,6 @@ public class ValidPaymentStatusValidator implements ConstraintValidator<ValidPay
     if (value == null) {
       return true;
     }
-    try {
-      PaymentStatus.fromValue(value);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
+    return PaymentStatus.fromValue(value) != null;
   }
 }

@@ -11,11 +11,7 @@ public class ValidOrderStatusValidator implements ConstraintValidator<ValidOrder
     if (value == null) {
       return true;
     }
-    try {
-      OrderStatus.fromValue(value);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
+    return OrderStatus.fromValue(value) != null;
+
   }
 }

@@ -1,6 +1,7 @@
 package alfarezyyd.pharmacy.model.entity;
 
 import alfarezyyd.pharmacy.model.entity.option.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Position;
 import alfarezyyd.pharmacy.model.entity.trait.Identifiable;
 
 import java.sql.Date;
@@ -12,7 +13,7 @@ public class Employee implements Identifiable {
   private String fullName;
   private Gender gender;
   private Date hireDate;
-  private String position;
+  private Position position;
   private Date startDate;
   private Date endDate;
   private Timestamp createdAt;
@@ -50,11 +51,11 @@ public class Employee implements Identifiable {
     this.hireDate = hireDate;
   }
 
-  public String getPosition() {
+  public Position getPosition() {
     return position;
   }
 
-  public void setPosition(String position) {
+  public void setPosition(Position position) {
     this.position = position;
   }
 

@@ -5,6 +5,7 @@ import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.ExceptionCheck;
 import alfarezyyd.pharmacy.helper.ResponseWriter;
+import alfarezyyd.pharmacy.model.entity.option.Position;
 import alfarezyyd.pharmacy.model.web.authentication.LoginRequest;
 import alfarezyyd.pharmacy.usecase.UserUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
@@ -37,7 +38,7 @@ public class AuthenticationController extends HttpServlet {
     if (pathInfo != null) {
       if (pathInfo.equals("/login")) {
         LoginRequest loginRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), LoginRequest.class);
-        String employeePosition = userUsecase.userLogin(serverError, clientError, loginRequest);
+        Position employeePosition = userUsecase.userLogin(serverError, clientError, loginRequest);
         if (employeePosition != null) {
           httpSession.setAttribute("position", employeePosition);
           httpSession.setAttribute("email", loginRequest.getEmail());

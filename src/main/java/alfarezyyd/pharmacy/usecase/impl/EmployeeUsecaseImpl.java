@@ -7,6 +7,7 @@ import alfarezyyd.pharmacy.helper.SortingHelper;
 import alfarezyyd.pharmacy.model.entity.Employee;
 import alfarezyyd.pharmacy.model.entity.User;
 import alfarezyyd.pharmacy.model.entity.option.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Position;
 import alfarezyyd.pharmacy.model.web.employee.EmployeeCreateRequest;
 import alfarezyyd.pharmacy.model.web.employee.EmployeeUpdateRequest;
 import alfarezyyd.pharmacy.model.web.response.EmployeeResponse;
@@ -94,7 +95,7 @@ public class EmployeeUsecaseImpl implements EmployeeUsecase {
       employee.setFullName(employeeCreateRequest.getFullName());
       employee.setGender(Gender.fromValue(employeeCreateRequest.getGender()));
       employee.setHireDate(Date.valueOf(employeeCreateRequest.getHireDate()));
-      employee.setPosition(employeeCreateRequest.getPosition());
+      employee.setPosition(Position.fromValue(employeeCreateRequest.getPosition()));
       employee.setStartDate(Date.valueOf(employeeCreateRequest.getStartDate()));
       if (employeeCreateRequest.getEndDate() != null) {
         employee.setEndDate(Date.valueOf(employeeCreateRequest.getEndDate()));
@@ -125,7 +126,7 @@ public class EmployeeUsecaseImpl implements EmployeeUsecase {
       employee.setFullName(employeeUpdateRequest.getFullName());
       employee.setGender(Gender.fromValue(employeeUpdateRequest.getGender()));
       employee.setHireDate(Date.valueOf(employeeUpdateRequest.getHireDate()));
-      employee.setPosition(employeeUpdateRequest.getPosition());
+      employee.setPosition(Position.fromValue(employeeUpdateRequest.getPosition()));
       employee.setStartDate(Date.valueOf(employeeUpdateRequest.getStartDate()));
       if (employeeUpdateRequest.getEndDate() != null) {
         employee.setEndDate(Date.valueOf(employeeUpdateRequest.getEndDate()));

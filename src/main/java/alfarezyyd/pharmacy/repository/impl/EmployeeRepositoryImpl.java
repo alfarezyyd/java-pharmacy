@@ -3,6 +3,7 @@ package alfarezyyd.pharmacy.repository.impl;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Employee;
 import alfarezyyd.pharmacy.model.entity.option.Gender;
+import alfarezyyd.pharmacy.model.entity.option.Position;
 import alfarezyyd.pharmacy.repository.EmployeeRepository;
 
 import java.sql.Connection;
@@ -26,7 +27,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
         employee.setFullName(resultSet.getString("full_name"));
         employee.setGender(Gender.fromValue(resultSet.getString("gender")));
         employee.setHireDate(resultSet.getDate("hire_date"));
-        employee.setPosition(resultSet.getString("position"));
+        employee.setPosition(Position.fromValue(resultSet.getString("position")));
         employee.setStartDate(resultSet.getDate("start_date"));
         employee.setEndDate(resultSet.getDate("end_date"));
         employee.setCreatedAt(resultSet.getTimestamp("created_at"));
@@ -48,7 +49,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
       preparedStatement.setString(1, employee.getFullName());
       preparedStatement.setString(2, employee.getGender().getValue());
       preparedStatement.setDate(3, employee.getHireDate());
-      preparedStatement.setString(4, employee.getPosition());
+      preparedStatement.setString(4, employee.getPosition().getValue());
       preparedStatement.setDate(5, employee.getStartDate());
       preparedStatement.setDate(6, employee.getEndDate());
       preparedStatement.executeUpdate();
@@ -66,7 +67,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepository {
       preparedStatement.setString(1, employee.getFullName());
       preparedStatement.setString(2, employee.getGender().getValue());
       preparedStatement.setDate(3, employee.getHireDate());
-      preparedStatement.setString(4, employee.getPosition());
+      preparedStatement.setString(4, employee.getPosition().getValue());
       preparedStatement.setDate(5, employee.getStartDate());
       preparedStatement.setDate(6, employee.getEndDate());
       preparedStatement.setTimestamp(7, employee.getUpdatedAt());

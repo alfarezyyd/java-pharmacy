@@ -11,11 +11,6 @@ public class ValidDosageFormValidator implements ConstraintValidator<ValidDosage
     if (value == null) {
       return true;
     }
-    try {
-      DosageForm.fromValue(value);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
+    return DosageForm.fromValue(value) != null;
   }
 }

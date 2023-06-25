@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class AuthenticationFilter extends HttpFilter {
         response.getWriter().println();
         response.setHeader("Content-Type", "application/json");
         HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("code", 401);
+        hashMap.put("code", HttpStatus.UNAUTHORIZED);
         hashMap.put("message", "You need to login first");
         response.getWriter().println(JSONUtil.getObjectMapper().writeValueAsString(hashMap));
       } else {

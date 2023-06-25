@@ -84,7 +84,7 @@ public class Model {
     employeeResponse.setFullName(employee.getFullName());
     employeeResponse.setGender(employee.getGender().getValue());
     employeeResponse.setHireDate(employee.getHireDate().toString());
-    employeeResponse.setPosition(employee.getPosition());
+    employeeResponse.setPosition(employee.getPosition().getValue());
     employeeResponse.setStartDate(employee.getStartDate().toString());
     employeeResponse.setEndDate(employee.getEndDate() != null ? employee.getEndDate().toString() : null);
     employeeResponse.setCreatedAt(employee.getCreatedAt().toString());
