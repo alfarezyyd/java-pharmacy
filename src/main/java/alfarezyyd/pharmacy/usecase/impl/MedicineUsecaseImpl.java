@@ -4,7 +4,7 @@ import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
-import alfarezyyd.pharmacy.helper.SortingHelper;
+import alfarezyyd.pharmacy.helper.SortingMapping;
 import alfarezyyd.pharmacy.model.entity.Medicine;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineCreateRequest;
 import alfarezyyd.pharmacy.model.web.medicine.MedicineUpdateRequest;
@@ -43,7 +43,7 @@ public class MedicineUsecaseImpl implements MedicineUsecase {
       LinkedList<Medicine> allMedicine = medicineRepository.getAllMedicine(connection);
       if (sortedBy != null) {
         algorithm = algorithm == null ? "quick-sort" : algorithm;
-        SortingHelper.mappingMedicineSorting(sortedBy, algorithm, clientError, allMedicine);
+        SortingMapping.mappingMedicineSorting(sortedBy, algorithm, clientError, allMedicine);
       }
       for (Medicine medicine : allMedicine) {
         MedicineResponse medicineResponse = Model.convertToMedicineResponse(medicine, null);

@@ -20,7 +20,7 @@ public class MedicineRepositoryImpl implements MedicineRepository {
       while (resultSet.next()) {
         Medicine medicine = new Medicine();
         medicine.setId(resultSet.getLong("id"));
-        medicine.setFullName(resultSet.getString("name"));
+        medicine.setFullName(resultSet.getString("full_name"));
         medicine.setBrand(resultSet.getString("brand"));
         medicine.setPrice(resultSet.getInt("price"));
         medicine.setStock(resultSet.getInt("stock"));

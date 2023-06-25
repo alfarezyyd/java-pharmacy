@@ -72,6 +72,49 @@ public class SortingUtil {
 
   }
 
+  public static class HeapSort {
+    public static <T> void heapSort(List<T> linkedList, Comparator<T> comparator) {
+      heapSortLogic(linkedList, linkedList.size(), comparator);
+    }
+
+    private static <T> void heapSortLogic(List<T> linkedList, int length, Comparator<T> comparator) {
+      // Rearrange Array
+      for (int i = length / 2 - 1; i >= 0; i--)
+        heapify(linkedList, length, i, comparator);
+
+      // One by one extract an element from heap
+      for (int i = length - 1; i > 0; i--) {
+        // Move current root to end
+        swap(linkedList, i, 0);
+        // call max heapify on the reduced heap
+        heapify(linkedList, i, 0, comparator);
+      }
+    }
+
+    private static <T> void heapify(List<T> linkedList, int length, int currentIndex, Comparator<T> comparator) {
+      int largestValue = currentIndex; // Initialize largest as root
+      int leftChild = 2 * currentIndex + 1; // left = 2*i + 1
+      int rightChild = 2 * currentIndex + 2; // right = 2*i + 2
+
+      // If left child is larger than root
+      if (leftChild < length && comparator.compare(linkedList.get(largestValue), linkedList.get(leftChild)) <= 0) {
+        largestValue = leftChild;
+      }
+
+      // If right child is larger than largest so far
+      if (rightChild < length && comparator.compare(linkedList.get(largestValue), linkedList.get(rightChild)) <= 0) {
+        largestValue = rightChild;
+      }
+
+      // If largest is not root
+      if (largestValue != currentIndex) {
+        swap(linkedList, currentIndex, largestValue);
+        // Recursively heapify the affected sub-tree
+        heapify(linkedList, length, largestValue, comparator);
+      }
+    }
+  }
+
   private static <T> void swap(List<T> linkedList, int i, int j) {
     T temp = linkedList.get(i);
     linkedList.set(i, linkedList.get(j));

@@ -3,7 +3,7 @@ package alfarezyyd.pharmacy.usecase.impl;
 import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
-import alfarezyyd.pharmacy.helper.SortingHelper;
+import alfarezyyd.pharmacy.helper.SortingMapping;
 import alfarezyyd.pharmacy.model.entity.Customer;
 import alfarezyyd.pharmacy.helper.Model;
 import alfarezyyd.pharmacy.model.entity.option.Gender;
@@ -49,7 +49,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
       if (sortedBy != null) {
         algorithm = algorithm == null ? "quick-sort" : algorithm;
-        SortingHelper.mappingCustomerSorting(sortedBy, algorithm, clientError, allCustomer);
+        SortingMapping.mappingCustomerSorting(sortedBy, algorithm, clientError, allCustomer);
       }
       for (Customer customer : allCustomer) {
         customerResponses.add(Model.convertToCustomerResponse(customer, null));

@@ -17,10 +17,14 @@ import java.util.HashMap;
 public class AuthenticationFilter extends HttpFilter {
   @Override
   protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    HttpSession httpSession = request.getSession(true);
     if (request.getRequestURI().equals("/api/authentication/login")) {
+      String email = (String) httpSession.getAttribute("email");
+      if (email != null) {
+        response.sendRedirect("/");
+      }
       chain.doFilter(request, response);
     } else {
-      HttpSession httpSession = request.getSession(true);
       String email = (String) httpSession.getAttribute("email");
       if (email == null) {
         response.setStatus(401);
