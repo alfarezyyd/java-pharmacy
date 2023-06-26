@@ -43,7 +43,7 @@ public class AddressRepositoryImpl implements AddressRepository {
     String sqlSyntax = """
         INSERT INTO addresses(customer_id, street, city, state, country, postal_code, is_default, description) VALUES (?,?,?,?,?,?,?,?)
         """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
       preparedStatement.setLong(1, address.getCustomerId());
       preparedStatement.setString(2, address.getStreet());
       preparedStatement.setString(3, address.getCity());
