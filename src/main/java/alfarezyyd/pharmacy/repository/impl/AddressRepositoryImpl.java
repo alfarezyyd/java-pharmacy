@@ -53,7 +53,6 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setBoolean(7, address.getDefault());
       preparedStatement.setString(8, address.getDescription());
       preparedStatement.executeUpdate();
-      connection.close();
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
