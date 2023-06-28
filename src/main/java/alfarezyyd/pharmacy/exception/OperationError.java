@@ -23,4 +23,12 @@ public class OperationError extends Exception {
   public String getErrorMessage() {
     return errorMessage;
   }
+
+  @Override
+  public String toString() {
+    return "OperationError{" +
+            "operation='" + operation + '\'' +
+            ", errorMessage='" + errorMessage + '\'' +
+            '}';
+  }
 }

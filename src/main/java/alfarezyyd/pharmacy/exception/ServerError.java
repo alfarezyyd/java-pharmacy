@@ -29,7 +29,7 @@ public class ServerError {
   public HashMap<String, LinkedList<?>> getServerErrors(){
     HashMap<String, LinkedList<?>> serverErrorsResponse = new HashMap<>();
     serverErrorsResponse.put("database_errors", getDatabaseErrors());
-    serverErrorsResponse.put("operation_erros", getOperationErrors());
+    serverErrorsResponse.put("operation_errors", getOperationErrors());
     return serverErrorsResponse;
   }
 
