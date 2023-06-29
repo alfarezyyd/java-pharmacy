@@ -92,7 +92,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
       Customer customer = new Customer();
       customer.setFullName(customerCreateRequest.getFullName());
       customer.setDateOfBirth(LocalDate.parse(customerCreateRequest.getDateOfBirth()));
-      customer.setGender(Gender.valueOf(customerCreateRequest.getGender()));
+      customer.setGender(Gender.fromValue(customerCreateRequest.getGender()));
       customer.setPhone(customerCreateRequest.getPhone());
       Long customerId = customerRepository.createCustomer(connection, customer);
       addressUsecase.createAddress(serverError, clientError, customerCreateRequest.getAddressCreateRequest(), customerId);
