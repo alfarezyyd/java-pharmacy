@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,10 +17,10 @@ public class AuthenticationFilter extends HttpFilter {
   @Override
   protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpSession httpSession = request.getSession(true);
-    if (request.getRequestURI().equals("/api/authentication/login")) {
+    if (request.getRequestURI().equals("/pharmacy/api/authentication/login")) {
       String email = (String) httpSession.getAttribute("email");
       if (email != null) {
-        response.sendRedirect("/");
+        response.sendRedirect("/pharmacy/home");
       }
       chain.doFilter(request, response);
     } else {
@@ -31,7 +30,7 @@ public class AuthenticationFilter extends HttpFilter {
         response.getWriter().println();
         response.setHeader("Content-Type", "application/json");
         HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("code", HttpStatus.UNAUTHORIZED);
+        hashMap.put("code", "401 UNAUTHORIZED");
         hashMap.put("message", "You need to login first");
         response.getWriter().println(JSONUtil.getObjectMapper().writeValueAsString(hashMap));
       } else {

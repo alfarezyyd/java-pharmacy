@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 
-@WebServlet("/api/authentication/*")
+@WebServlet(urlPatterns = "/api/authentication/*")
 public class AuthenticationController extends HttpServlet {
   private UserUsecase userUsecase;
 

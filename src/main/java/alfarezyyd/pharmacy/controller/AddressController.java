@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebServlet("/api/addresses/customers")
+@WebServlet(urlPatterns = "/api/addresses/customers")
 public class AddressController extends HttpServlet {
   private AddressUsecase addressUsecase;
 

@@ -3,7 +3,6 @@ package alfarezyyd.pharmacy.helper;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,7 +13,7 @@ public class ResponseWriter {
   public static void writeToResponseBodySuccess(HttpServletResponse resp, Object responseData) {
     try {
       Map<String, Object> webResponse = new HashMap<>();
-      webResponse.put("code", HttpStatus.OK);
+      webResponse.put("code", "200 OK");
       webResponse.put("message", "Success!");
       webResponse.put("data", responseData);
       webResponse.put("errors", null);
@@ -30,7 +29,7 @@ public class ResponseWriter {
     errorsResponse.put("client_errors", clientError.getClientErrors());
     try {
       Map<String, Object> webResponse = new HashMap<>();
-      webResponse.put("code", HttpStatus.BAD_REQUEST);
+      webResponse.put("code", "400 BAD_REQUEST");
       webResponse.put("message", "Failed! Error has Occured");
       webResponse.put("data", null);
       webResponse.put("errors", errorsResponse);
@@ -45,7 +44,7 @@ public class ResponseWriter {
   public static void writeToResponseBodyServerError(HttpServletResponse resp) {
     try {
       Map<String, Object> webResponse = new HashMap<>();
-      webResponse.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
+      webResponse.put("code", "500 INTERNAL_SERVER_ERROR");
       webResponse.put("message", "Failed! Error has Occured");
       webResponse.put("data", null);
       webResponse.put("errors", "Internal Server Error");
