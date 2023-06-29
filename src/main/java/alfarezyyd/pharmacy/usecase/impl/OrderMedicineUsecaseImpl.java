@@ -31,7 +31,7 @@ public class OrderMedicineUsecaseImpl implements OrderMedicineUsecase {
       LinkedList<Medicine> allMedicine = medicineRepository.getAllMedicine(connection);
       LinkedList<Long> allTotalPrice = Model.countTotalPrice(clientError, orderMedicineRequest, allMedicine);
       if (allTotalPrice == null) {
-        return null;
+        return 0F;
       }
       OrderMedicine orderMedicine = new OrderMedicine();
       orderMedicine.setOrderId(orderId);
@@ -56,7 +56,7 @@ public class OrderMedicineUsecaseImpl implements OrderMedicineUsecase {
       LinkedList<Long> allTotalPrice = Model.countTotalPrice(clientError, orderMedicineRequest, allMedicine);
       orderMedicineRepository.deleteOrderMedicine(connection, orderId);
       if (allTotalPrice == null) {
-        return null;
+        return 0F;
       }
       OrderMedicine orderMedicine = new OrderMedicine();
       orderMedicine.setOrderId(orderId);
