@@ -10,7 +10,7 @@ import alfarezyyd.pharmacy.model.web.user.UserUpdateRequest;
 import alfarezyyd.pharmacy.usecase.UserUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -48,7 +48,7 @@ public class UserController extends HttpServlet {
     try {
       UserCreateRequest userCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), UserCreateRequest.class);
       userUsecase.createUser(serverError, clientError, userCreateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e) {
+    } catch (JsonParseException | MismatchedInputException e) {
       clientError.addActionError("create new user", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
@@ -64,7 +64,7 @@ public class UserController extends HttpServlet {
     try {
       UserUpdateRequest userUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), UserUpdateRequest.class);
       userUsecase.updateUser(serverError, clientError, userUpdateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e) {
+    } catch (JsonParseException | MismatchedInputException e) {
       clientError.addActionError("update user", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {

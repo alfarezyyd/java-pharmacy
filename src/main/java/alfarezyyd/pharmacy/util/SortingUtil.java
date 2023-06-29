@@ -109,7 +109,7 @@ public class SortingUtil {
       // If largest is not root
       if (largestValue != currentIndex) {
         swap(linkedList, currentIndex, largestValue);
-        // Recursively heapify the affected sub-tree
+        // Recursively heapify the affected subtree
         heapify(linkedList, length, largestValue, comparator);
       }
     }

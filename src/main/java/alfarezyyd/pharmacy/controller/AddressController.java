@@ -9,7 +9,7 @@ import alfarezyyd.pharmacy.model.web.address.AddressUpdateRequest;
 import alfarezyyd.pharmacy.usecase.AddressUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,7 +39,7 @@ public class AddressController extends HttpServlet {
       addressUsecase.createAddress(serverError, clientError, addressCreateRequest, customerIdLong);
     } catch (NumberFormatException e) {
       clientError.addActionError("create new address", "invalid! query param {customer-id} must number");
-    } catch (JsonParseException | UnrecognizedPropertyException e){
+    } catch (JsonParseException | MismatchedInputException e){
       clientError.addActionError("create new address", e.getOriginalMessage());
     }
 
@@ -56,7 +56,7 @@ public class AddressController extends HttpServlet {
     try {
       AddressUpdateRequest addressUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), AddressUpdateRequest.class);
       addressUsecase.updateAddress(serverError, clientError, addressUpdateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e) {
+    } catch (JsonParseException | MismatchedInputException e) {
       clientError.addActionError("update address", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {

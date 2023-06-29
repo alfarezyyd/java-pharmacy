@@ -9,6 +9,8 @@ import alfarezyyd.pharmacy.model.entity.option.Position;
 import alfarezyyd.pharmacy.model.web.authentication.LoginRequest;
 import alfarezyyd.pharmacy.usecase.UserUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -37,20 +39,24 @@ public class AuthenticationController extends HttpServlet {
     String pathInfo = req.getPathInfo();
     if (pathInfo != null) {
       if (pathInfo.equals("/login")) {
-        LoginRequest loginRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), LoginRequest.class);
-        Position employeePosition = userUsecase.userLogin(serverError, clientError, loginRequest);
-        if (employeePosition != null) {
-          httpSession.setAttribute("position", employeePosition);
-          httpSession.setAttribute("email", loginRequest.getEmail());
-          ResponseWriter.writeToResponseBodySuccess(resp, "Login Succeeded!");
+        try {
+          LoginRequest loginRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), LoginRequest.class);
+          Position employeePosition = userUsecase.userLogin(serverError, clientError, loginRequest);
+          if (employeePosition != null) {
+            httpSession.setAttribute("position", employeePosition);
+            httpSession.setAttribute("email", loginRequest.getEmail());
+            ResponseWriter.writeToResponseBodySuccess(resp, "Login Succeeded!");
+          }
+        } catch (JsonParseException | MismatchedInputException e) {
+          clientError.addActionError("update employee", e.getOriginalMessage());
         }
       } else if (pathInfo.equals("/logout")) {
         httpSession.invalidate();
         ResponseWriter.writeToResponseBodySuccess(resp, "Logout Succeeded!");
+      } else {
+        clientError.addActionError("authentication", "please visit /login or /logout");
       }
-    } else {
-      clientError.addActionError("authentication", "please visit /login or /logout");
+      ExceptionCheck.isExceptionOccurred(serverError, clientError, resp);
     }
-    ExceptionCheck.isExceptionOccurred(serverError, clientError, resp);
   }
 }

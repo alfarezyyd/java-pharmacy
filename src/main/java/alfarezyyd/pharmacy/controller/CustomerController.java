@@ -11,7 +11,7 @@ import alfarezyyd.pharmacy.model.web.response.CustomerResponse;
 import alfarezyyd.pharmacy.usecase.CustomerUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -64,7 +64,7 @@ public class CustomerController extends HttpServlet {
     try {
       CustomerCreateRequest customerCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerCreateRequest.class);
       customerUsecase.createCustomer(serverError, clientError, customerCreateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e){
+    } catch (JsonParseException | MismatchedInputException e){
       clientError.addActionError("create new customer", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
@@ -80,7 +80,7 @@ public class CustomerController extends HttpServlet {
     try {
       CustomerUpdateRequest customerUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), CustomerUpdateRequest.class);
       customerUsecase.updateCustomer(serverError, clientError, customerUpdateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e) {
+    } catch (JsonParseException | MismatchedInputException e) {
       clientError.addActionError("update customer", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {

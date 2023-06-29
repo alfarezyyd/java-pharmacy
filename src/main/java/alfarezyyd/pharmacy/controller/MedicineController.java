@@ -10,7 +10,7 @@ import alfarezyyd.pharmacy.model.web.response.MedicineResponse;
 import alfarezyyd.pharmacy.usecase.MedicineUsecase;
 import alfarezyyd.pharmacy.util.JSONUtil;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -62,7 +62,7 @@ public class MedicineController extends HttpServlet {
     try {
       MedicineCreateRequest medicineCreateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineCreateRequest.class);
       medicineUsecase.createMedicine(serverError, clientError, medicineCreateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e) {
+    } catch (JsonParseException | MismatchedInputException e) {
       clientError.addActionError("create medicine", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
@@ -78,7 +78,7 @@ public class MedicineController extends HttpServlet {
     try {
       MedicineUpdateRequest medicineUpdateRequest = JSONUtil.getObjectMapper().readValue(req.getReader(), MedicineUpdateRequest.class);
       medicineUsecase.updateMedicine(serverError, clientError, medicineUpdateRequest);
-    } catch (JsonParseException | UnrecognizedPropertyException e) {
+    } catch (JsonParseException | MismatchedInputException e) {
       clientError.addActionError("update medicine", e.getOriginalMessage());
     }
     if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
