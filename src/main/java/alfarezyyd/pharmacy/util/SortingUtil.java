@@ -12,8 +12,8 @@ public class SortingUtil {
     private static <T> void quickSortLogic(List<T> linkedList, int low, int high, Comparator<T> comparator) {
       if (low < high) {
         int partitionIndex = partition(linkedList, low, high, comparator);
-        quickSortLogic(linkedList, low, partitionIndex - 1, comparator);
-        quickSortLogic(linkedList, partitionIndex + 1, high, comparator);
+        quickSortLogic(linkedList, low, partitionIndex - 1, comparator); // Partisi Kiri
+        quickSortLogic(linkedList, partitionIndex + 1, high, comparator); // Partisi Kanan
       }
     }
 
@@ -27,7 +27,6 @@ public class SortingUtil {
           swap(linkedList, i, j);
         }
       }
-
       swap(linkedList, i + 1, high);
       return i + 1;
     }
@@ -79,8 +78,9 @@ public class SortingUtil {
 
     private static <T> void heapSortLogic(List<T> linkedList, int length, Comparator<T> comparator) {
       // Rearrange Array
-      for (int i = length / 2 - 1; i >= 0; i--)
+      for (int i = length / 2 - 1; i >= 0; i--) {
         heapify(linkedList, length, i, comparator);
+      }
 
       // One by one extract an element from heap
       for (int i = length - 1; i > 0; i--) {
@@ -92,25 +92,25 @@ public class SortingUtil {
     }
 
     private static <T> void heapify(List<T> linkedList, int length, int currentIndex, Comparator<T> comparator) {
-      int largestValue = currentIndex; // Initialize largest as root
+      int largestIndex = currentIndex; // Initialize largest as root
       int leftChild = 2 * currentIndex + 1; // left = 2*i + 1
       int rightChild = 2 * currentIndex + 2; // right = 2*i + 2
 
       // If left child is larger than root
-      if (leftChild < length && comparator.compare(linkedList.get(largestValue), linkedList.get(leftChild)) <= 0) {
-        largestValue = leftChild;
+      if (leftChild < length && comparator.compare(linkedList.get(largestIndex), linkedList.get(leftChild)) <= 0) {
+        largestIndex = leftChild;
       }
 
       // If right child is larger than largest so far
-      if (rightChild < length && comparator.compare(linkedList.get(largestValue), linkedList.get(rightChild)) <= 0) {
-        largestValue = rightChild;
+      if (rightChild < length && comparator.compare(linkedList.get(largestIndex), linkedList.get(rightChild)) <= 0) {
+        largestIndex = rightChild;
       }
 
       // If largest is not root
-      if (largestValue != currentIndex) {
-        swap(linkedList, currentIndex, largestValue);
+      if (largestIndex != currentIndex) {
+        swap(linkedList, currentIndex, largestIndex);
         // Recursively heapify the affected subtree
-        heapify(linkedList, length, largestValue, comparator);
+        heapify(linkedList, length, largestIndex, comparator);
       }
     }
   }
