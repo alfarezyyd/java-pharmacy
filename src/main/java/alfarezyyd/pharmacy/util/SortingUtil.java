@@ -81,7 +81,6 @@ public class SortingUtil {
       for (int i = length / 2 - 1; i >= 0; i--) {
         heapify(linkedList, length, i, comparator);
       }
-
       // One by one extract an element from heap
       for (int i = length - 1; i > 0; i--) {
         // Move current root to end
@@ -95,17 +94,14 @@ public class SortingUtil {
       int largestIndex = currentIndex; // Initialize largest as root
       int leftChild = 2 * currentIndex + 1; // left = 2*i + 1
       int rightChild = 2 * currentIndex + 2; // right = 2*i + 2
-
       // If left child is larger than root
       if (leftChild < length && comparator.compare(linkedList.get(largestIndex), linkedList.get(leftChild)) <= 0) {
         largestIndex = leftChild;
       }
-
       // If right child is larger than largest so far
       if (rightChild < length && comparator.compare(linkedList.get(largestIndex), linkedList.get(rightChild)) <= 0) {
         largestIndex = rightChild;
       }
-
       // If largest is not root
       if (largestIndex != currentIndex) {
         swap(linkedList, currentIndex, largestIndex);

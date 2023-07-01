@@ -111,6 +111,7 @@ public class CustomerUsecaseImpl implements CustomerUsecase {
         String propertyPath = constraintViolation.getPropertyPath().toString();
         clientError.addValidationError(StringUtil.toSnakeCase(propertyPath), constraintViolation.getMessage());
       }
+      return;
     }
     try (Connection connection = hikariDataSource.getConnection()) {
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
