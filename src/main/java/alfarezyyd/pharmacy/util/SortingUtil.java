@@ -60,7 +60,7 @@ public class SortingUtil {
       for (int i = 1; i < linkedList.size(); i++) {
         T currentElement = linkedList.get(i);
         int j = i - 1;
-        while (j >= 0 && comparator.compare(linkedList.get(j), currentElement) <= 0) {
+        while (j >= 0 && comparator.compare(currentElement, linkedList.get(j)) <= 0) {
           linkedList.set((j + 1), linkedList.get(j));
           j--;
         }
@@ -68,7 +68,6 @@ public class SortingUtil {
         linkedList.set(j + 1, currentElement);
       }
     }
-
   }
 
   public static class HeapSort {
