@@ -95,9 +95,12 @@ public class MedicineController extends HttpServlet {
     try {
       Long medicineIdLong = Long.parseLong(medicineId);
       medicineUsecase.deleteMedicine(serverError, clientError, medicineIdLong);
-      ResponseWriter.writeToResponseBodySuccess(resp, null);
     } catch (NumberFormatException e) {
       clientError.addActionError("delete medicine", "invalid! query param {medicine-id} must number");
     }
+    if (ExceptionCheck.isExceptionOccurred(serverError, clientError, resp)) {
+      return;
+    }
+    ResponseWriter.writeToResponseBodySuccess(resp, null);
   }
 }
