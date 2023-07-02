@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.usecase.impl;
 
+import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.ClientError;
 import alfarezyyd.pharmacy.exception.ServerError;
 import alfarezyyd.pharmacy.helper.Model;
@@ -77,6 +78,13 @@ public class AddressUsecaseImpl implements AddressUsecase {
   @Override
   public void updateAddress(ServerError serverError, ClientError clientError, AddressUpdateRequest addressUpdateRequest) {
     try (Connection connection = hikariDataSource.getConnection()) {
+      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      Customer customer = SearchUtil.binarySearch(allCustomer, addressUpdateRequest.getCustomerId());
+      if (customer == null) {
+        clientError.addActionError("update address", "customer not found");
+        return;
+      }
+
       LinkedList<Address> allAddress = addressRepository.getAllAddress(connection);
       Address address = SearchUtil.binarySearch(allAddress, addressUpdateRequest.getId());
       if (address == null) {
@@ -84,12 +92,6 @@ public class AddressUsecaseImpl implements AddressUsecase {
         return;
       }
 
-      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
-      Customer customer = SearchUtil.binarySearch(allCustomer, addressUpdateRequest.getCustomerId());
-      if (customer == null) {
-        clientError.addActionError("update address", "customer not found");
-        return;
-      }
       address.setCustomerId(addressUpdateRequest.getCustomerId());
       address.setStreet(addressUpdateRequest.getStreet());
       address.setCity(addressUpdateRequest.getCity());
@@ -101,23 +103,25 @@ public class AddressUsecaseImpl implements AddressUsecase {
       addressRepository.updateAddress(connection, address);
     } catch (SQLException e) {
       serverError.addDatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
+    } catch (ActionError e) {
+      clientError.addActionError(e.getAction(), e.getErrorMessage());
     }
   }
 
   @Override
   public void deleteAddress(ServerError serverError, ClientError clientError, Long addressId, Long customerId) {
     try (Connection connection = hikariDataSource.getConnection()) {
-      LinkedList<Address> allAddress = addressRepository.getAllAddress(connection);
-      Address address = SearchUtil.binarySearch(allAddress, addressId);
-      if (address == null) {
-        clientError.addActionError("update address", "address not found");
-        return;
-      }
-
       LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
       Customer customer = SearchUtil.binarySearch(allCustomer, customerId);
       if (customer == null) {
         clientError.addActionError("update address", "customer not found");
+        return;
+      }
+
+      LinkedList<Address> allAddress = addressRepository.getAllAddress(connection);
+      Address address = SearchUtil.binarySearch(allAddress, addressId);
+      if (address == null) {
+        clientError.addActionError("update address", "address not found");
         return;
       }
 

@@ -46,10 +46,14 @@ public class OrderUsecaseImpl implements OrderUsecase {
   public LinkedList<OrderResponse> getAllOrderByCustomerId(ServerError serverError, ClientError clientError, Long customerId) {
     LinkedList<OrderResponse> allOrderResponse = new LinkedList<>();
     try (Connection connection = hikariDataSource.getConnection()) {
+      LinkedList<Customer> allCustomer = customerRepository.getAllCustomer(connection);
+      Customer customer = SearchUtil.binarySearch(allCustomer, customerId);
+      if (customer == null) {
+        clientError.addActionError("create order", "customer not found");
+      }
       LinkedList<Order> allOrder = orderRepository.getAllOrder(connection);
       LinkedList<Order> foundedOrders = SearchUtil.sequentialSearchByCustomerId(allOrder, customerId);
       if (foundedOrders.size() == 0) {
-        clientError.addActionError("find order", "order not found");
         return null;
       }
       for (Order foundedOrder : foundedOrders) {

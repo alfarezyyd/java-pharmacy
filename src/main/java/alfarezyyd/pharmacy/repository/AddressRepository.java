@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.repository;
 
+import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Address;
 
@@ -11,7 +12,7 @@ public interface AddressRepository {
 
   void createAddress(Connection connection, Address address) throws DatabaseError;
 
-  void updateAddress(Connection connection, Address address) throws DatabaseError;
+  void updateAddress(Connection connection, Address address) throws DatabaseError, ActionError;
 
   void deleteSingleCustomerAddress(Connection connection, Long addressId, Long customerId) throws DatabaseError;
   void deleteAllCustomerAddress(Connection connection, Long customerId) throws DatabaseError;

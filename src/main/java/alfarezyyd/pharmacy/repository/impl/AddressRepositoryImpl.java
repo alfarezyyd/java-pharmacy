@@ -1,5 +1,6 @@
 package alfarezyyd.pharmacy.repository.impl;
 
+import alfarezyyd.pharmacy.exception.ActionError;
 import alfarezyyd.pharmacy.exception.DatabaseError;
 import alfarezyyd.pharmacy.model.entity.Address;
 import alfarezyyd.pharmacy.repository.AddressRepository;
@@ -59,11 +60,11 @@ public class AddressRepositoryImpl implements AddressRepository {
   }
 
   @Override
-  public void updateAddress(Connection connection, Address address) throws DatabaseError {
+  public void updateAddress(Connection connection, Address address) throws DatabaseError, ActionError {
     String sqlSyntax = """
         UPDATE addresses SET street=?, city=?, state=?, country=?, postal_code=?, is_default=?, description=?, updated_at=? WHERE id=? AND customer_id=?
         """;
-    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
       preparedStatement.setString(1, address.getStreet());
       preparedStatement.setString(2, address.getCity());
       preparedStatement.setString(3, address.getState());
@@ -74,7 +75,10 @@ public class AddressRepositoryImpl implements AddressRepository {
       preparedStatement.setTimestamp(8, address.getUpdatedAt());
       preparedStatement.setLong(9, address.getId());
       preparedStatement.setLong(10, address.getCustomerId());
-      preparedStatement.executeUpdate();
+      int affectedRows = preparedStatement.executeUpdate();
+      if (affectedRows == 0) {
+        throw new ActionError("update customer", "address with id " + address.getId() + " does not belong to a customer with id " + address.getCustomerId());
+      }
     } catch (SQLException e) {
       throw new DatabaseError(e.getMessage(), e.getErrorCode(), e.getSQLState());
     }
