@@ -44,7 +44,7 @@ public class SearchUtil {
     return null;
   }
 
-    public static User sequentialSearchByEmployeeId(LinkedList<User> linkedListOfUser, Long employeeId) {
+  public static User sequentialSearchByEmployeeId(LinkedList<User> linkedListOfUser, Long employeeId) {
     for (User user : linkedListOfUser) {
       if (user.getEmployeeId().equals(employeeId)) {
         return user;
